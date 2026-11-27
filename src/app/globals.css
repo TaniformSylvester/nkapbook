@@ -1,0 +1,84 @@
+@import "./tokens.css";
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100dvh;
+}
+h1, h2, h3 { font-family: var(--font-head); line-height: 1.15; margin: 0 0 var(--s3); letter-spacing: -0.01em; }
+h1 { font-size: 1.75rem; font-weight: 700; }
+h2 { font-size: 1.3rem; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0 0 var(--s3); }
+a { color: var(--kotiz); text-underline-offset: 2px; }
+img, svg { max-width: 100%; display: block; }
+.num { font-family: var(--font-head); font-variant-numeric: tabular-nums; }
+
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+
+.wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: var(--s4); }
+.stack > * + * { margin-top: var(--s4); }
+.muted { color: var(--muted); }
+.small { font-size: 0.875rem; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s4); box-shadow: var(--shadow); }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+  min-height: var(--tap); padding: 0 var(--s5);
+  border-radius: var(--radius-sm); border: 2px solid transparent;
+  font: 600 1rem/1 var(--font-body); text-decoration: none; cursor: pointer;
+  background: var(--kotiz); color: #fff;
+  touch-action: manipulation;
+}
+.btn:hover { background: var(--forest); }
+.btn:disabled { opacity: 0.6; cursor: wait; }
+.btn-block { width: 100%; }
+.btn-ghost { background: transparent; color: var(--kotiz); border-color: var(--kotiz); }
+.btn-ghost:hover { background: var(--kotiz-tint); }
+.btn-link { background: none; border: 0; color: var(--kotiz); text-decoration: underline; min-height: var(--tap); padding: 0 var(--s2); font: inherit; cursor: pointer; }
+
+/* Forms */
+.field { display: block; }
+.field label { display: block; font-weight: 600; margin-bottom: var(--s1); }
+.field .hint { display: block; color: var(--muted); font-size: 0.875rem; margin-bottom: var(--s2); }
+.input {
+  width: 100%; min-height: var(--tap); padding: 0 var(--s3);
+  border: 2px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--ink); font: 1.125rem var(--font-body);
+}
+.input:focus { border-color: var(--kotiz); outline: none; box-shadow: 0 0 0 3px var(--kotiz-tint); }
+.input-big { font-family: var(--font-head); font-size: 1.5rem; letter-spacing: 0.3em; text-align: center; }
+.error { background: var(--danger-tint); color: var(--danger); border-radius: var(--radius-sm); padding: var(--s3); font-weight: 500; }
+.note { background: var(--kotiz-tint); color: var(--forest); border-radius: var(--radius-sm); padding: var(--s3); }
+
+/* "Your turn" highlight: gold is a background with ink text, never gold text on paper */
+.turn { background: var(--gold); color: var(--ink); border-radius: 999px; padding: 2px var(--s3); font-weight: 700; }
+
+/* Header */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding: var(--s3) var(--s4); max-width: var(--maxw); margin: 0 auto; }
+.topbar .logo { height: 28px; width: auto; }
+.topbar > a { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* Language switch (no JavaScript needed) */
+.langs { display: flex; gap: var(--s1); }
+.langs button {
+  min-height: 44px; min-width: 44px; padding: 0 var(--s2);
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: var(--radius-sm); font: 600 0.875rem var(--font-body); cursor: pointer;
+}
+.langs button[aria-pressed="true"] { background: var(--kotiz); border-color: var(--kotiz); color: #fff; }
+
+.offline-bar { position: sticky; top: 0; z-index: 10; background: var(--ink); color: #fff; padding: var(--s2) var(--s4); text-align: center; font-size: 0.875rem; }
+
+@media print {
+  .no-print, .topbar, .langs { display: none !important; }
+  body { background: #fff; }
+}
