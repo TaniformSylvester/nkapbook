@@ -7,11 +7,12 @@ import { formatCmPhone } from "@/lib/phone";
 import type { Member } from "@/lib/types";
 import { updateGroup } from "../actions";
 import { PendingInvite, type Invite } from "../OfficialsBlocks";
+import { SubscriptionSection } from "../Subscription";
 
 export default async function SettingsPage({ params }: { params: Promise<{ gid: string }> }) {
   const { gid } = await params;
   const { sb, group, isPresident, lang, t } = await getGroupContext(gid);
-  const [{ data: officials }, { data: invites }, { data: members }] = await Promise.all([
+  const [{ data: officials }, { data: invites }, { data: members }, { data: subPayments }] = await Promise.all([
     sb.from("members").select("*").eq("group_id", gid).neq("role", "member").eq("status", "active").order("role").returns<Member[]>(),
     sb
       .from("official_invites")
@@ -21,6 +22,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ gid: 
       .is("cancelled_at", null)
       .returns<Invite[]>(),
     sb.from("members").select("id, name").eq("group_id", gid),
+    sb.from("subscription_payments").select("id, months, amount, paid_until_after, recorded_at").eq("group_id", gid).order("recorded_at", { ascending: false }),
   ]);
   const nameOf = new Map((members ?? []).map((m) => [m.id as string, { name: m.name as string }]));
 
@@ -63,6 +65,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ gid: 
           ))}
           <p className="small muted">{isPresident ? t.officials.howTo : t.officials.onlyPresident}</p>
         </section>
+        <SubscriptionSection group={group} payments={subPayments ?? []} t={t} lang={lang} />
         <Link className="btn btn-ghost btn-block" href={`/app/g/${gid}/export`}>{t.exports.title}</Link>
       </main>
     </>

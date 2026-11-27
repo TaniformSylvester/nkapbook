@@ -4,6 +4,7 @@ import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext, scheduleText } from "@/lib/group";
 import { formatFcfa } from "@/lib/money";
+import { SubscriptionNotice } from "./Subscription";
 
 type Bal = { member_id: string; name: string; contribution_owing: number; fines_owing: number; loans_owing: number; events_owing: number };
 type Slot = { planned_date: string; hand_no: number; members: { name: string; hands: number } | null };
@@ -34,6 +35,7 @@ export default async function GroupOverview({ params }: { params: Promise<{ gid:
     <>
       <AppHeader lang={lang} t={t} back="/app" title={group.name} sub={[group.town, scheduleText(t, group)].filter(Boolean).join(" · ")} />
       <main className="wrap stack">
+        <SubscriptionNotice group={group} t={t} lang={lang} />
         {openMeeting ? (
           <Link className="btn btn-block" href={`/app/g/${gid}/meetings/${openMeeting.id}`}>{t.meetings.continue}</Link>
         ) : count > 0 && (
