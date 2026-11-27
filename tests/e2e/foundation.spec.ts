@@ -40,3 +40,10 @@ test("PWA manifest and service worker are served", async ({ page, request }) => 
   await page.goto("/");
   expect(await page.evaluate(async () => !!(await navigator.serviceWorker.ready))).toBe(true);
 });
+
+test("group pages are private: signed-out visitors go to sign in", async ({ page }) => {
+  for (const path of ["/app/new", "/app/g/00000000-0000-0000-0000-000000000000/members"]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/login$/);
+  }
+});
