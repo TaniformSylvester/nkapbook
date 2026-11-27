@@ -16,6 +16,7 @@ export type Group = {
   plan: "pilot" | "free" | "paid";
   fines_go_to_fund: boolean;
   collectors_per_meeting: number;
+  paid_until: string | null;
 };
 
 export type Member = {

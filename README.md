@@ -29,7 +29,7 @@ much, how, when, and who recorded it.
 | Dashboard | Who owes what, fund balance, overdue loans, next turns |
 | Reminders | Personalised WhatsApp messages, sent with one tap through `wa.me` (free). Automatic sending is built but off |
 | Exports | CSV of everything; printable meeting summary and member statement (Save as PDF) |
-| Platform admin | `/admin`: all groups with counts and plan (pilot / free / paid). No member names or phone numbers |
+| Platform admin | `/admin`: all groups with counts, plan (pilot / free / paid) and subscription; record payments. No member names or phone numbers |
 
 **Trust:** money records can't be edited or deleted by anyone; a correction is a new line with a reason, visible to
 the member. Every other change goes to an audit log automatically.
@@ -108,6 +108,7 @@ To set up a **new** project from scratch:
       Orange Cameroon. It's paid per SMS: check current prices and send a test to both networks.
 - [ ] Remove or expire the **test phone numbers** in Supabase.
 - [ ] Make yourself **platform admin** (step 1.6).
+- [ ] Set your **subscription payment numbers** in Vercel (see Subscriptions below), then move groups from *Pilot* to *Paid* when you start charging.
 - [ ] Review the Pidgin wording: `npm run pidgin:review` writes `docs/pidgin-review.md`.
 - [ ] **Backups:** the Supabase free plan keeps limited backups. For real money records, consider the Pro plan
       (daily backups) or export CSVs regularly (Settings → Export and print).
@@ -150,6 +151,22 @@ To set up a **new** project from scratch:
   characters; officials can reset a link and the old one stops working at once.
 - Sign-in codes are rate-limited per phone number and per connection, on top of Supabase's own limits.
 - Supabase's default `TRUNCATE` grant is revoked (it would bypass row security).
+
+### Subscriptions (groups paying for NkapBook)
+
+This is the group paying **you** for the service; NkapBook still never holds group money.
+
+- Price: `SUBSCRIPTION_PRICE_XAF` (default **2,000 FCFA per month** for the whole group).
+- Set your payment details in Vercel: `SUBSCRIPTION_MTN_NUMBER`, `SUBSCRIPTION_ORANGE_NUMBER`,
+  `SUBSCRIPTION_PAYEE_NAME` and optionally `SUBSCRIPTION_WHATSAPP_NUMBER` (defaults to the MTN number). They're kept
+  out of the code on purpose. Redeploy after changing them.
+- Officials see *Settings → NkapBook subscription*: status, price, how to pay, the group's reference (e.g.
+  `NKAP-9D5117`) to write in the MoMo message, and a button to tell you on WhatsApp.
+- When a treasurer has paid, open **/admin** → the group → *Record payment* (1, 3, 6 or 12 months, amount, method,
+  MoMo reference). The plan becomes *Paid* and the end date moves forward from today, or from the current end date if
+  they paid early. Every payment is kept and can't be edited.
+- 7 days before the end, and after it, officials see a friendly notice on the Overview. **Nothing is blocked**:
+  records stay visible and exportable. *Pilot* and *Free* groups never see payment notices.
 
 ### WhatsApp reminders
 
