@@ -48,9 +48,15 @@ beforeAll(async () => {
   );
 
   // Alice invites Carol as treasurer; Carol signs in and accepts.
+  const carolMember = (
+    await db.user(alice).commit<{ id: string }>(
+      `insert into public.members (group_id, name, phone) values ($1, 'Carol', $2) returning id`,
+      [groupA, carolPhone],
+    )
+  )[0]!.id;
   await db.user(alice).commit(
-    `insert into public.official_invites (group_id, phone, role, invited_by) values ($1, $2, 'treasurer', $3)`,
-    [groupA, carolPhone, alice],
+    `insert into public.official_invites (group_id, member_id, phone, role, invited_by) values ($1, $2, $3, 'treasurer', $4)`,
+    [groupA, carolMember, carolPhone, alice],
   );
   await db.user(carol).commit(`select public.accept_invites()`);
 });
@@ -212,8 +218,8 @@ describe("roles and invites", () => {
   it("only the president can invite officials", async () => {
     await expect(
       db.user(carol).q(
-        `insert into public.official_invites (group_id, phone, role, invited_by) values ($1, $2, 'secretary', $3)`,
-        [groupA, phone(), carol],
+        `insert into public.official_invites (group_id, member_id, phone, role, invited_by) values ($1, $2, $3, 'secretary', $4)`,
+        [groupA, memberA, phone(), carol],
       ),
     ).rejects.toThrow(/row-level security/);
   });

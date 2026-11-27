@@ -1,0 +1,63 @@
+import Link from "next/link";
+import { ActionForm } from "@/components/ActionForm";
+import { AppHeader } from "@/components/AppHeader";
+import { GroupFields } from "@/components/GroupFields";
+import { getGroupContext } from "@/lib/group";
+import { formatCmPhone } from "@/lib/phone";
+import type { Member } from "@/lib/types";
+import { updateGroup } from "../actions";
+import { PendingInvite, type Invite } from "../OfficialsBlocks";
+
+export default async function SettingsPage({ params }: { params: Promise<{ gid: string }> }) {
+  const { gid } = await params;
+  const { sb, group, isPresident, lang, t } = await getGroupContext(gid);
+  const [{ data: officials }, { data: invites }, { data: members }] = await Promise.all([
+    sb.from("members").select("*").eq("group_id", gid).neq("role", "member").eq("status", "active").order("role").returns<Member[]>(),
+    sb
+      .from("official_invites")
+      .select("id, member_id, phone, role, created_at")
+      .eq("group_id", gid)
+      .is("accepted_at", null)
+      .is("cancelled_at", null)
+      .returns<Invite[]>(),
+    sb.from("members").select("id, name").eq("group_id", gid),
+  ]);
+  const nameOf = new Map((members ?? []).map((m) => [m.id as string, { name: m.name as string }]));
+
+  return (
+    <>
+      <AppHeader lang={lang} t={t} back={`/app/g/${gid}`} title={t.nav.settings} sub={group.name} />
+      <main className="wrap stack">
+        <ActionForm action={updateGroup.bind(null, gid)} errors={t.errors} submit={t.groupForm.save} okText={t.groupForm.saved} className="card stack">
+          <GroupFields t={t} initial={group} />
+          <label className="check">
+            <input type="checkbox" name="fines_to_fund" defaultChecked={group.fines_go_to_fund} />
+            <span>{t.groupForm.finesToFund}</span>
+          </label>
+        </ActionForm>
+
+        <section className="stack">
+          <h2>{t.officials.title}</h2>
+          <p className="small muted">{t.officials.lead}</p>
+          <ul className="list">
+            {(officials ?? []).map((o) => (
+              <li key={o.id}>
+                <Link href={`/app/g/${gid}/members/${o.id}`} className="row">
+                  <div className="row-main">
+                    <div className="row-title">{o.name}</div>
+                    <div className="row-sub">{o.phone ? formatCmPhone(o.phone) : ""}</div>
+                  </div>
+                  <span className="chip">{t.roles[o.role]}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {(invites ?? []).map((inv) => (
+            <PendingInvite key={inv.id} gid={gid} inv={inv} member={nameOf.get(inv.member_id)} groupName={group.name} t={t} canCancel={isPresident} />
+          ))}
+          <p className="small muted">{isPresident ? t.officials.howTo : t.officials.onlyPresident}</p>
+        </section>
+      </main>
+    </>
+  );
+}
