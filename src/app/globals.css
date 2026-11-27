@@ -223,3 +223,5 @@ input[type="date"].input { font-size: 1rem; padding: 0 var(--s2); }
 }
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 @media print { .table-scroll { overflow: visible; } }
+.mm-extra h4 { margin: 0 0 4px; font-family: var(--font-head); font-size: 0.95rem; }
+.mm-extra { border-top: 1px dashed var(--line); padding-top: var(--s3); }

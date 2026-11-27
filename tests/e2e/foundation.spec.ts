@@ -80,3 +80,10 @@ test("public pages pass an automated accessibility scan (WCAG 2.1 AA) in all thr
     }
   }
 });
+
+test("sharing a private link requires sign-in", async ({ request }) => {
+  const g = "00000000-0000-0000-0000-000000000000";
+  const res = await request.get(`/app/g/${g}/links/send?m=${g}&l=en`, { maxRedirects: 0 });
+  expect(res.status()).toBe(307);
+  expect(res.headers()["location"]).toContain("/login");
+});

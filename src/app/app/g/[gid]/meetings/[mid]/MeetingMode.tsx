@@ -9,7 +9,7 @@ import { ATTENDANCE, METHODS, type Attendance, type Method, type Op, type Queued
 import { supabaseBrowser } from "@/lib/supabase/browser";
 import { uuid } from "@/lib/uuid";
 
-export type MeetingText = Pick<Dict, "live" | "methods" | "attendance" | "meetings" | "common">;
+export type MeetingText = Pick<Dict, "live" | "methods" | "attendance" | "meetings" | "common" | "fines" | "loans">;
 type SyncState = "idle" | "saving" | "offline";
 
 export function MeetingMode({ initial, t, lang }: { initial: Snapshot; t: MeetingText; lang: Lang }) {
@@ -127,6 +127,9 @@ export function MeetingMode({ initial, t, lang }: { initial: Snapshot; t: Meetin
           </div>
         </div>
         <div className="mm-progress" aria-hidden="true"><span style={{ width: `${pct}%` }} /></div>
+        {(view.totals.fines > 0 || view.totals.loans > 0) && (
+          <div className="small">{fill(t.live.otherToday, { fines: fcfa(view.totals.fines), loans: fcfa(view.totals.loans) })}</div>
+        )}
         <div className={`mm-sync ${sync === "offline" && pending ? "is-offline" : ""}`}>
           {failed.length > 0
             ? fill(t.live.failed, { n: failed.length })
@@ -173,6 +176,7 @@ export function MeetingMode({ initial, t, lang }: { initial: Snapshot; t: Meetin
                     {m.hands > 1 ? `${m.hands}× · ` : ""}
                     {fill(t.live.paidOfDue, { paid: fcfa(m.paid_today), due: fcfa(m.due_today) })}
                     {m.owing_before > 0 && <span className="mm-owe"> · {fill(t.live.plusBefore, { owe: fcfa(m.owing_before) })}</span>}
+                    {m.fines.length > 0 && <span className="mm-owe"> · {fill(t.live.finesOwed, { amount: fcfa(m.fines.reduce((a, f) => a + f.balance, 0)) })}</span>}
                   </span>
                 </button>
                 {!closed && (
@@ -192,7 +196,7 @@ export function MeetingMode({ initial, t, lang }: { initial: Snapshot; t: Meetin
                   m.due_today > 0 && left === 0 && <span className="mm-paid">✓ {t.live.paid}</span>
                 )}
               </div>
-              {isOpen && <MemberPanel m={m} t={t} fcfa={fcfa} closed={closed} pay={pay} mark={mark} record={record} mid={mid} />}
+              {isOpen && <MemberPanel m={m} t={t} fcfa={fcfa} closed={closed} pay={pay} mark={mark} record={record} mid={mid} gid={snap.meeting.group_id} lang={lang} />}
             </li>
           );
         })}
@@ -204,8 +208,8 @@ export function MeetingMode({ initial, t, lang }: { initial: Snapshot; t: Meetin
   );
 }
 
-function MemberPanel({ m, t, fcfa, closed, pay, mark, record, mid }: {
-  m: ViewMember; t: MeetingText; fcfa: (n: number) => string; closed: boolean; mid: string;
+function MemberPanel({ m, t, fcfa, closed, pay, mark, record, mid, gid, lang }: {
+  m: ViewMember; t: MeetingText; fcfa: (n: number) => string; closed: boolean; mid: string; gid: string; lang: Lang;
   pay: (m: ViewMember, a: number, method?: Method, ref?: string) => unknown;
   mark: (m: ViewMember, s: Attendance) => unknown;
   record: (op: Op) => Promise<void>;
@@ -262,6 +266,7 @@ function MemberPanel({ m, t, fcfa, closed, pay, mark, record, mid }: {
           </button>
         </>
       )}
+      <FinesAndLoans m={m} t={t} fcfa={fcfa} closed={closed} record={record} mid={mid} gid={gid} lang={lang} />
       {m.payments.length > 0 && (
         <ul className="mm-payments">
           {m.payments.map((p) => (
@@ -380,5 +385,95 @@ function CloseMeeting({ view, t, closed, record, mid }: {
         {t.live.close}
       </button>
     </section>
+  );
+}
+
+const FINE_TYPES = ["late_payment", "absence", "lateness", "misconduct", "custom"] as const;
+
+/** Unpaid fines and active loans, collected at the meeting even with no network. */
+function FinesAndLoans({ m, t, fcfa, closed, record, mid, gid, lang }: {
+  m: ViewMember; t: MeetingText; fcfa: (n: number) => string; closed: boolean; mid: string; gid: string; lang: Lang;
+  record: (op: Op) => Promise<void>;
+}) {
+  const [fineType, setFineType] = useState<(typeof FINE_TYPES)[number]>("misconduct");
+  const [fineAmount, setFineAmount] = useState("");
+  const [repay, setRepay] = useState<Record<string, string>>({});
+  const [method, setMethod] = useState<Method>("cash");
+  const at = () => new Date().toISOString();
+  if (closed && m.fines.length === 0 && m.loans.length === 0) return null;
+  return (
+    <div className="stack mm-extra">
+      {m.fines.length > 0 && (
+        <div>
+          <h4>{t.live.finesTitle}</h4>
+          <ul className="mm-payments">
+            {m.fines.map((f) => (
+              <li key={f.id}>
+                <span>{t.fines.types[f.type]} · <span className="num">{fcfa(f.balance)}</span></span>
+                {!closed && (
+                  <button className="btn mm-pay" style={{ marginLeft: "auto" }}
+                    onClick={() => record({ type: "fine_payment", id: uuid(), meeting_id: mid, fine_id: f.id, amount: f.balance, method: "cash", at: at() })}>
+                    {fill(t.live.payFine, { amount: fcfa(f.balance) })}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {m.loans.map((l) => (
+        <div key={l.id} className="stack">
+          <h4>{t.live.loanTitle} {l.overdue && <span className="chip chip-danger">{t.loans.overdue}</span>}</h4>
+          <p className="small" style={{ margin: 0 }}>{fill(t.live.loanLeft, { amount: fcfa(l.balance), date: new Date(`${l.due_date}T12:00:00`).toLocaleDateString(lang === "fr" ? "fr-CM" : "en-GB", { day: "numeric", month: "short", year: "numeric" }) })}</p>
+          {!closed && (
+            <>
+              <div className="grid2">
+                <div className="field">
+                  <label htmlFor={`lr-${l.id}`}>{t.live.amount}</label>
+                  <input id={`lr-${l.id}`} className="input num" inputMode="numeric" value={repay[l.id] ?? ""} onChange={(e) => setRepay({ ...repay, [l.id]: e.target.value })} />
+                </div>
+                <div className="field">
+                  <label htmlFor={`lm-${l.id}`}>{t.live.method}</label>
+                  <select id={`lm-${l.id}`} className="input" value={method} onChange={(e) => setMethod(e.target.value as Method)}>
+                    {METHODS.map((x) => <option key={x} value={x}>{t.methods[x]}</option>)}
+                  </select>
+                </div>
+              </div>
+              <button className="btn btn-ghost btn-block" disabled={!parseAmount(repay[l.id] ?? "")}
+                onClick={() => {
+                  const a = parseAmount(repay[l.id] ?? "");
+                  if (a) { record({ type: "loan_repayment", id: uuid(), meeting_id: mid, loan_id: l.id, amount: Math.min(a, l.balance), method, at: at() }); setRepay({ ...repay, [l.id]: "" }); }
+                }}>
+                {t.live.repay}
+              </button>
+            </>
+          )}
+        </div>
+      ))}
+      {!closed && (
+        <details>
+          <summary className="btn-link">{t.live.addFine}</summary>
+          <div className="grid2">
+            <div className="field">
+              <label htmlFor={`ft-${m.id}`}>{t.fines.type}</label>
+              <select id={`ft-${m.id}`} className="input" value={fineType} onChange={(e) => setFineType(e.target.value as (typeof FINE_TYPES)[number])}>
+                {FINE_TYPES.map((x) => <option key={x} value={x}>{t.fines.types[x]}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor={`fa-${m.id}`}>{t.live.amount}</label>
+              <input id={`fa-${m.id}`} className="input num" inputMode="numeric" value={fineAmount} onChange={(e) => setFineAmount(e.target.value)} />
+            </div>
+          </div>
+          <button className="btn btn-ghost btn-block" disabled={!parseAmount(fineAmount)}
+            onClick={() => {
+              const a = parseAmount(fineAmount);
+              if (a) { record({ type: "fine", id: uuid(), meeting_id: mid, group_id: gid, member_id: m.id, fine_type: fineType, amount: a, at: at() }); setFineAmount(""); }
+            }}>
+            {t.live.addFine}
+          </button>
+        </details>
+      )}
+    </div>
   );
 }
