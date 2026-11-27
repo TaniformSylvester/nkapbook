@@ -1,7 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import { clientIp } from "@/lib/client-ip";
-import { normalizeCmPhone, toE164 } from "@/lib/phone";
+import { normalizePhone, toE164 } from "@/lib/phone";
 import { rateLimit } from "@/lib/supabase/admin";
 import { supabaseServer } from "@/lib/supabase/server";
 
@@ -13,7 +13,7 @@ export type LoginState = {
 
 
 export async function sendCode(_prev: LoginState, form: FormData): Promise<LoginState> {
-  const phone = normalizeCmPhone(String(form.get("phone") ?? ""));
+  const phone = normalizePhone(String(form.get("phone") ?? ""));
   if (!phone) return { step: "phone", error: "phone" };
 
   // Our own limits, on top of Supabase's: 5 codes per number per 15 min, 20 per IP per hour.
@@ -32,7 +32,7 @@ export async function sendCode(_prev: LoginState, form: FormData): Promise<Login
 }
 
 export async function verifyCode(_prev: LoginState, form: FormData): Promise<LoginState> {
-  const phone = normalizeCmPhone(String(form.get("phone") ?? ""));
+  const phone = normalizePhone(String(form.get("phone") ?? ""));
   const token = String(form.get("code") ?? "").replace(/\D/g, "");
   if (!phone) return { step: "phone", error: "phone" };
   if (token.length !== 6) return { step: "code", phone, error: "code" };

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { fill } from "@/i18n";
 import { getGroupContext } from "@/lib/group";
-import { formatCmPhone } from "@/lib/phone";
+import { formatPhone } from "@/lib/phone";
 import type { Member } from "@/lib/types";
 
 export default async function MembersPage({
@@ -28,7 +28,7 @@ export default async function MembersPage({
           <div className="row-title">
             {m.name} {m.role !== "member" && <span className="chip">{t.roles[m.role]}</span>}
           </div>
-          <div className="row-sub">{m.phone ? formatCmPhone(m.phone) : t.members.noPhone}</div>
+          <div className="row-sub">{m.phone ? formatPhone(m.phone) : t.members.noPhone}</div>
         </div>
         <div className="row-end">
           {m.status === "left" ? (

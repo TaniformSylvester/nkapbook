@@ -5,7 +5,7 @@ import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext } from "@/lib/group";
 import { formatFcfa } from "@/lib/money";
-import { formatCmPhone } from "@/lib/phone";
+import { formatPhone } from "@/lib/phone";
 
 const IN = ["contribution_paid", "fine_paid", "loan_repaid", "event_paid", "fund_deposit"];
 
@@ -33,7 +33,7 @@ export default async function Statement({ params }: { params: Promise<{ gid: str
         <Logo />
         <div>
           <h1 style={{ margin: 0 }}>{b.name as string}</h1>
-          <p style={{ margin: 0 }}>{X.statement} · {group.name}{b.phone ? ` · ${formatCmPhone(b.phone as string)}` : ""}</p>
+          <p style={{ margin: 0 }}>{X.statement} · {group.name}{b.phone ? ` · ${formatPhone(b.phone as string)}` : ""}</p>
         </div>
       </header>
       <div className="table-scroll" tabIndex={0} role="region" aria-label={X.totals}><table className="print-table">

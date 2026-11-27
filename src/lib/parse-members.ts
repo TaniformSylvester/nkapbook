@@ -1,4 +1,4 @@
-import { normalizeCmPhone } from "./phone";
+import { normalizePhone } from "./phone";
 
 export type ParsedLine =
   | { ok: true; line: number; name: string; phone: string | null; hands: number }
@@ -55,7 +55,7 @@ export function parseMemberList(text: string): ParsedLine[] {
     let phone: string | null = null;
     const pm = PHONE_RE.exec(rest);
     if (pm) {
-      phone = normalizeCmPhone(pm[0]);
+      phone = normalizePhone(pm[0]);
       if (!phone) {
         out.push({ ok: false, line, raw, problem: "badPhone" });
         return;

@@ -11,6 +11,8 @@ much, how, when, and who recorded it.
   with no network during the meeting.
 - **Members** install nothing and have no account: each gets a private link on WhatsApp showing their own record.
 - **English, French and Cameroon Pidgin**, switchable on every page.
+- **Members and officials abroad** can be added with their own number: Cameroon numbers are typed as usual
+  (`6 70 12 34 56`), numbers from other countries start with `+` and the country code (`+44 7911 123456`).
 
 ---
 
@@ -105,7 +107,8 @@ To set up a **new** project from scratch:
 ## 4. Before inviting real groups (launch checklist)
 
 - [ ] **Real SMS provider** for login codes (Twilio, Vonage, MessageBird or Textlocal) that delivers to MTN and
-      Orange Cameroon. It's paid per SMS: check current prices and send a test to both networks.
+      Orange Cameroon. It's paid per SMS: check current prices and send a test to both networks. If officials sign in
+      from abroad, also allow those countries in the provider (e.g. Twilio → Messaging → Geo permissions).
 - [ ] Remove or expire the **test phone numbers** in Supabase.
 - [ ] Make yourself **platform admin** (step 1.6).
 - [ ] Set your **subscription payment numbers** in Vercel (see Subscriptions below), then move groups from *Pilot* to *Paid* when you start charging.

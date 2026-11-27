@@ -8,7 +8,7 @@ export function errorKey(e: { message?: string; code?: string } | null | undefin
   if (/needs a president/.test(m)) return "needsPresident";
   if (e?.code === "42501" || /row-level security|not allowed|permission denied|only the president/.test(m)) return "notAllowed";
   if (/official_invites_open/.test(m)) return "alreadyInvited";
-  if (/cm_phone/.test(m)) return "phone";
+  if (/cm_phone|phone_number/.test(m)) return "phone";
   if (e?.code === "23514" || e?.code === "22P02") return "invalid";
   return "generic";
 }

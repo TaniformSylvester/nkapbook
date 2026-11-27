@@ -3,7 +3,7 @@ import { ActionForm } from "@/components/ActionForm";
 import { AppHeader } from "@/components/AppHeader";
 import { GroupFields } from "@/components/GroupFields";
 import { getGroupContext } from "@/lib/group";
-import { formatCmPhone } from "@/lib/phone";
+import { formatPhone } from "@/lib/phone";
 import type { Member } from "@/lib/types";
 import { updateGroup } from "../actions";
 import { PendingInvite, type Invite } from "../OfficialsBlocks";
@@ -53,7 +53,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ gid: 
                 <Link href={`/app/g/${gid}/members/${o.id}`} className="row">
                   <div className="row-main">
                     <div className="row-title">{o.name}</div>
-                    <div className="row-sub">{o.phone ? formatCmPhone(o.phone) : ""}</div>
+                    <div className="row-sub">{o.phone ? formatPhone(o.phone) : ""}</div>
                   </div>
                   <span className="chip">{t.roles[o.role]}</span>
                 </Link>

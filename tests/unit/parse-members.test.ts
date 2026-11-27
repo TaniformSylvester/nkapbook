@@ -20,6 +20,8 @@ describe("parseMemberList", () => {
     ["Fon Emmanuel 670123456 2 hands", { name: "Fon Emmanuel", phone: "237670123456", hands: 2 }],
     ["Mbah Délphine, 2", { name: "Mbah Délphine", phone: null, hands: 2 }],
     ["• Ayuk Nkongho 670-12-34-56", { name: "Ayuk Nkongho", phone: "237670123456", hands: 1 }],
+    ["Comfort Fon, +44 7911 123456, 2", { name: "Comfort Fon", phone: "447911123456", hands: 2 }],
+    ["Emmanuel Che 0033 6 12 34 56 78", { name: "Emmanuel Che", phone: "33612345678", hands: 1 }],
   ])("%s", (input, expected) => expect(ok(input)).toEqual(expected));
 
   it("skips blank lines and keeps line numbers", () => {

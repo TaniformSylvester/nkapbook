@@ -29,7 +29,7 @@ test("login rejects a non-Cameroon number with a friendly message", async ({ pag
   await page.goto("/login");
   await page.getByLabel("Your phone number").fill("12345");
   await page.getByRole("button", { name: "Send me a code" }).click();
-  await expect(page.locator(".error")).toContainText("Cameroon phone number");
+  await expect(page.locator(".error")).toContainText("valid phone number");
 });
 
 test("PWA manifest and service worker are served", async ({ page, request }) => {
