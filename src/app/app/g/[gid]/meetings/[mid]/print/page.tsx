@@ -39,7 +39,7 @@ export default async function PrintMeeting({ params }: { params: Promise<{ gid: 
           return `${c.name}${p ? ` (${fill(t.live.payoutDone, { amount: f(p.amount), method: t.methods[p.method] })}${p.confirmed ? ` ✓ ${fill(t.live.confirmed, { name: c.name })}` : ""})` : ""}`;
         }).join("; ")}</p>
       )}
-      <div className="table-scroll"><table className="print-table">
+      <div className="table-scroll" tabIndex={0} role="region" aria-label={X.totals}><table className="print-table">
         <thead><tr><th>{X.member}</th><th>{X.present}</th><th className="r">{X.due}</th><th className="r">{X.paidCol}</th><th className="r">{X.balance}</th></tr></thead>
         <tbody>
           {s.members.map((m) => (

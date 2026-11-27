@@ -36,7 +36,7 @@ export default async function Statement({ params }: { params: Promise<{ gid: str
           <p style={{ margin: 0 }}>{X.statement} · {group.name}{b.phone ? ` · ${formatCmPhone(b.phone as string)}` : ""}</p>
         </div>
       </header>
-      <div className="table-scroll"><table className="print-table">
+      <div className="table-scroll" tabIndex={0} role="region" aria-label={X.totals}><table className="print-table">
         <tbody>
           <tr><th>{t.me.paid}</th><td className="r">{f(Number(b.contributions_paid))}</td></tr>
           <tr><th>{t.me.owing}</th><td className="r">{f(owing)}</td></tr>
@@ -49,7 +49,7 @@ export default async function Statement({ params }: { params: Promise<{ gid: str
         <p><strong>{t.me.yourTurn}:</strong> {(slots ?? []).map((s) => `${fmtDate(lang, s.planned_date as string)}${s.meeting_id ? " ✓" : ""}`).join(", ")}</p>
       )}
       <h2>{t.me.history}</h2>
-      <div className="table-scroll"><table className="print-table">
+      <div className="table-scroll" tabIndex={0} role="region" aria-label={X.totals}><table className="print-table">
         <thead><tr><th>{t.meetings.date}</th><th>{X.details}</th><th className="r">FCFA</th></tr></thead>
         <tbody>
           {(entries ?? []).map((e) => (

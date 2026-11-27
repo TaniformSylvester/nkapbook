@@ -68,3 +68,15 @@ test("exports and reminder links require sign-in", async ({ request }) => {
     expect(res.headers()["location"]).toContain("/login");
   }
 });
+
+test("public pages pass an automated accessibility scan (WCAG 2.1 AA) in all three languages", async ({ page, context }) => {
+  const { default: AxeBuilder } = await import("@axe-core/playwright");
+  for (const lang of ["en", "fr", "pcm"]) {
+    await context.addCookies([{ name: "nk_lang", value: lang, url: "http://localhost:3100" }]);
+    for (const path of ["/", "/login", "/offline", "/m/not-a-real-token"]) {
+      await page.goto(path);
+      const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+      expect(r.violations.map((v) => `${lang} ${path}: ${v.id}`)).toEqual([]);
+    }
+  }
+});

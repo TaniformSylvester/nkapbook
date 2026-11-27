@@ -465,6 +465,16 @@ const en = {
     details: "Details",
     signatures: "Signatures",
   },
+  admin: {
+    title: "Platform admin",
+    link: "Platform admin",
+    groups: "All groups",
+    plan: "Plan",
+    plans: { pilot: "Pilot", free: "Free", paid: "Paid" },
+    stats: "{members} members · {meetings} meetings · created {date}",
+    save: "Save",
+    notAdmin: "This page is for the NkapBook platform admin only.",
+  },
   offlinePage: {
     title: "No network",
     body: "This page is not saved on your phone yet. When you are back online, it will load.",

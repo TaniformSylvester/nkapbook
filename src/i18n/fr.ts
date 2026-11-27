@@ -465,6 +465,16 @@ const fr: Dict = {
     details: "Détails",
     signatures: "Signatures",
   },
+  admin: {
+    title: "Administration",
+    link: "Administration de la plateforme",
+    groups: "Tous les groupes",
+    plan: "Formule",
+    plans: { pilot: "Pilote", free: "Gratuit", paid: "Payant" },
+    stats: "{members} membres · {meetings} réunions · créé le {date}",
+    save: "Enregistrer",
+    notAdmin: "Cette page est réservée à l’administrateur de NkapBook.",
+  },
   offlinePage: {
     title: "Pas de réseau",
     body: "Cette page n’est pas encore enregistrée sur votre téléphone. Elle se chargera quand le réseau reviendra.",

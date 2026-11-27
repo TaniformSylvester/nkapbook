@@ -112,7 +112,8 @@ a.row:hover { background: var(--paper); }
 .row-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row-sub { color: var(--muted); font-size: 0.875rem; }
 .row-end { flex: none; text-align: right; }
-.row.is-left { opacity: 0.65; }
+.row.is-left .row-title, .row.is-done .row-title { color: var(--muted); font-weight: 500; }
+.row.is-done { background: var(--paper); }
 
 .chip { display: inline-block; padding: 1px var(--s2); border-radius: 999px; font-size: 0.75rem; font-weight: 600; background: var(--kotiz-tint); color: var(--forest); }
 .chip-muted { background: var(--line); color: var(--ink); }

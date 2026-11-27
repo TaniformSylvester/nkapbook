@@ -470,6 +470,16 @@ const pcm: Dict = {
     details: "Details",
     signatures: "Signatures",
   },
+  admin: {
+    title: "Platform admin",
+    link: "Platform admin",
+    groups: "All groups",
+    plan: "Plan",
+    plans: { pilot: "Pilot", free: "Free", paid: "Paid" },
+    stats: "{members} members · {meetings} meetings · e start {date}",
+    save: "Save am",
+    notAdmin: "This page na only for NkapBook platform admin.",
+  },
   offlinePage: {
     title: "Network no dey",
     body: "This page never save for your phone yet. When network come back, e go load.",
