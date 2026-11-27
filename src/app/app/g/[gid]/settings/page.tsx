@@ -30,6 +30,12 @@ export default async function SettingsPage({ params }: { params: Promise<{ gid: 
       <main className="wrap stack">
         <ActionForm action={updateGroup.bind(null, gid)} errors={t.errors} submit={t.groupForm.save} okText={t.groupForm.saved} className="card stack">
           <GroupFields t={t} initial={group} />
+          <div className="field">
+            <label htmlFor="collectors">{t.cycle.perMeeting}</label>
+            <select id="collectors" name="collectors" className="input" defaultValue={group.collectors_per_meeting}>
+              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </div>
           <label className="check">
             <input type="checkbox" name="fines_to_fund" defaultChecked={group.fines_go_to_fund} />
             <span>{t.groupForm.finesToFund}</span>

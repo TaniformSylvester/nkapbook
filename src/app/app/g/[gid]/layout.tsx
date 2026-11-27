@@ -7,7 +7,7 @@ export default async function GroupLayout({ children, params }: { children: Reac
   return (
     <>
       {children}
-      <GroupTabs gid={gid} labels={{ overview: t.nav.overview, members: t.nav.members, settings: t.nav.settings }} />
+      <GroupTabs gid={gid} labels={{ overview: t.nav.overview, meetings: t.nav.meetings, members: t.nav.members, settings: t.nav.settings }} />
     </>
   );
 }

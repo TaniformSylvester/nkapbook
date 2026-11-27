@@ -110,7 +110,11 @@ export async function updateGroup(gid: string, _prev: ActionResult, form: FormDa
   const { sb } = await client();
   const { data, error } = await sb
     .from("groups")
-    .update({ ...g, fines_go_to_fund: form.get("fines_to_fund") === "on" })
+    .update({
+      ...g,
+      fines_go_to_fund: form.get("fines_to_fund") === "on",
+      collectors_per_meeting: Math.min(10, Math.max(1, Number(form.get("collectors")) || 1)),
+    })
     .eq("id", gid)
     .select("id");
   if (error) return { error: errorKey(error) };
