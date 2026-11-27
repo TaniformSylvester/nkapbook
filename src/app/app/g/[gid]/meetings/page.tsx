@@ -48,7 +48,10 @@ export default async function MeetingsPage({ params }: { params: Promise<{ gid: 
             <input id="date" name="date" type="date" className="input" required defaultValue={(nextSlot?.planned_date as string | undefined) ?? today} />
           </div>
         </ActionForm>
-        <Link href={`/app/g/${gid}/cycle`} className="btn btn-ghost btn-block">{t.cycle.title}</Link>
+        <div className="actions">
+          <Link href={`/app/g/${gid}/reminders`} className="btn btn-ghost">{t.remind.open}</Link>
+          <Link href={`/app/g/${gid}/cycle`} className="btn btn-ghost">{t.cycle.title}</Link>
+        </div>
         {(meetings ?? []).length === 0 ? (
           <p className="muted">{t.meetings.none}</p>
         ) : (

@@ -54,3 +54,17 @@ test("member link pages are private and never cached", async ({ request }) => {
   expect(res.headers()["referrer-policy"]).toBe("no-referrer");
   expect(await res.text()).toContain("noindex");
 });
+
+test("automatic reminder job refuses callers without the secret", async ({ request }) => {
+  expect((await request.get("/api/cron/reminders")).status()).toBe(401);
+  expect((await request.get("/api/cron/reminders", { headers: { Authorization: "Bearer wrong" } })).status()).toBe(401);
+});
+
+test("exports and reminder links require sign-in", async ({ request }) => {
+  const g = "00000000-0000-0000-0000-000000000000";
+  for (const path of [`/app/g/${g}/export/ledger.csv`, `/app/g/${g}/reminders/send?m=${g}&d=2026-01-01&l=en`]) {
+    const res = await request.get(path, { maxRedirects: 0 });
+    expect(res.status()).toBe(307);
+    expect(res.headers()["location"]).toContain("/login");
+  }
+});

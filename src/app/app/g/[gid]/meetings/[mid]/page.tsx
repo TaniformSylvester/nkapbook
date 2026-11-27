@@ -25,6 +25,7 @@ export default async function MeetingPage({ params }: { params: Promise<{ gid: s
           lang={lang}
           t={{ live: t.live, methods: t.methods, attendance: t.attendance, meetings: t.meetings, common: t.common }}
         />
+        <a className="btn btn-ghost btn-block no-print" style={{ marginTop: 16 }} href={`/app/g/${gid}/meetings/${mid}/print`}>{t.exports.printMeeting}</a>
         <section className="card stack no-print" style={{ marginTop: 16 }}>
           <ApplyRules action={applyRules.bind(null, gid, mid)} label={t.fines.apply} hint={t.fines.applyHint} done={t.fines.applied} />
         </section>

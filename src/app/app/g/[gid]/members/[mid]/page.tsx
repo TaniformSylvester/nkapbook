@@ -44,6 +44,7 @@ export default async function MemberPage({ params }: { params: Promise<{ gid: st
           <MemberFields t={t} m={m} withStatus />
         </ActionForm>
 
+        <a className="btn btn-ghost btn-block" href={`/app/g/${gid}/members/${mid}/statement`}>{t.exports.printStatement}</a>
         <section className="stack">
           <h2>{t.officials.title}</h2>
           {!isPresident ? (

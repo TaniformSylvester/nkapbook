@@ -204,3 +204,21 @@ body:has(.bottomnav) main { padding-bottom: 88px; }
 .input { min-width: 0; max-width: 100%; }
 input[type="date"].input { font-size: 1rem; padding: 0 var(--s2); }
 .field label { overflow-wrap: anywhere; }
+
+/* Printable pages */
+.print-head { display: flex; gap: var(--s4); align-items: center; border-bottom: 2px solid var(--kotiz); padding-bottom: var(--s3); flex-wrap: wrap; }
+.print-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: var(--surface); }
+.print-table th, .print-table td { border-bottom: 1px solid var(--line); padding: 6px 4px; text-align: left; vertical-align: top; }
+.print-table .r { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.print-table tfoot th { border-top: 2px solid var(--ink); }
+.print-table tr.corr td { color: var(--muted); font-style: italic; }
+.sigs { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--s5); }
+.sigs div { border-top: 1px solid var(--ink); padding-top: 4px; margin-top: 40px; display: flex; flex-direction: column; }
+@media print {
+  .print-doc { max-width: none; padding: 0; }
+  .print-table { font-size: 10pt; }
+  body:has(.bottomnav) main { padding-bottom: 0; }
+  @page { margin: 14mm; }
+}
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media print { .table-scroll { overflow: visible; } }
