@@ -122,3 +122,10 @@ export async function updateGroup(gid: string, _prev: ActionResult, form: FormDa
   revalidatePath(`/app/g/${gid}`, "layout");
   return { ok: true };
 }
+
+export async function resetLink(gid: string, mid: string) {
+  if (!UUID.test(gid) || !UUID.test(mid)) return;
+  const { sb } = await client();
+  await sb.rpc("reset_member_link", { p_member_id: mid });
+  revalidatePath(`/app/g/${gid}/members/${mid}`);
+}

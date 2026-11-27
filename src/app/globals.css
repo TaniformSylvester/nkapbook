@@ -188,3 +188,12 @@ body:has(.bottomnav) main { padding-bottom: 88px; }
 .row-title, .row-sub { display: block; }
 .mm-name .row-sub { display: block; }
 .code { font-family: ui-monospace, monospace; word-break: break-all; }
+
+/* Member page */
+.stat-owe { border-color: var(--danger); }
+.stat-owe .value { color: var(--danger); }
+.turn-big .turn { display: inline-block; font-size: 1.1rem; padding: var(--s2) var(--s4); }
+.hist .num { flex: none; font-weight: 600; }
+.hist .num.in { color: var(--kotiz); }
+.hist.is-corrected .num { text-decoration: line-through; color: var(--muted); }
+.hist .row-title { white-space: normal; line-height: 1.3; }

@@ -47,3 +47,10 @@ test("group pages are private: signed-out visitors go to sign in", async ({ page
     await expect(page).toHaveURL(/\/login$/);
   }
 });
+
+test("member link pages are private and never cached", async ({ request }) => {
+  const res = await request.get("/m/not-a-real-token");
+  expect(res.headers()["cache-control"]).toContain("no-store");
+  expect(res.headers()["referrer-policy"]).toBe("no-referrer");
+  expect(await res.text()).toContain("noindex");
+});
