@@ -1,3 +1,4 @@
+import "./pg-types";
 import { Client } from "pg";
 import { randomUUID } from "node:crypto";
 import { testUrl } from "./global-setup";
