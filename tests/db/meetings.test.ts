@@ -178,6 +178,44 @@ describe("meetings and offline sync", () => {
     expect(s.collectors.map((c) => c.name)).toEqual(["Mary"]);
   });
 
+  it("meeting mode carries unpaid fines and active loans, and collects them offline-style", async () => {
+    const fine = randomUUID();
+    const loan = randomUUID();
+    const at = new Date().toISOString();
+    await sync([
+      { type: "fund_deposit", id: randomUUID(), group_id: gid, amount: 100000, method: "cash", at },
+      { type: "fine", id: fine, group_id: gid, member_id: m.Mary, fine_type: "misconduct", amount: 1000, at },
+      { type: "loan", id: loan, group_id: gid, member_id: m.Mary, principal: 50000, rate: 0, basis: "per_month",
+        start_date: "2026-02-01", due_date: "2026-05-01", method: "cash", at },
+    ]);
+    let mary = member(await snap(m2), "Mary") as unknown as { fines: { id: string; balance: number }[]; loans: { id: string; balance: number }[] };
+    expect(mary.fines.map((f) => f.balance)).toEqual([1000]);
+    expect(mary.loans.map((l) => l.balance)).toEqual([50000]);
+    const pay = randomUUID();
+    const r = await sync([
+      { type: "fine_payment", id: pay, meeting_id: m2, fine_id: fine, amount: 1000, method: "cash", at },
+      { type: "loan_repayment", id: randomUUID(), meeting_id: m2, loan_id: loan, amount: 20000, method: "mtn_momo", at },
+    ]);
+    expect(r.every((x) => x.ok)).toBe(true);
+    const s = await snap(m2) as unknown as { entry_ids: string[]; members: { name: string; fines: unknown[]; loans: { balance: number }[]; fines_paid_today: number; loans_paid_today: number }[] };
+    const mm = s.members.find((x) => x.name === "Mary")!;
+    expect(mm.fines).toHaveLength(0);
+    expect(mm.loans[0]!.balance).toBe(30000);
+    expect(mm.fines_paid_today).toBe(1000);
+    expect(mm.loans_paid_today).toBe(20000);
+    expect(s.entry_ids).toContain(pay);
+    void mary;
+  });
+
+  it("sharing a member's link creates it once and records when it was shared; other groups can't", async () => {
+    const t1 = (await db.user(pres).commit<{ t: string }>(`select public.share_member_link($1) t`, [m.Grace]))[0]!.t;
+    const t2 = (await db.user(pres).commit<{ t: string }>(`select public.share_member_link($1) t`, [m.Grace]))[0]!.t;
+    expect(t2).toBe(t1);
+    const [l] = await db.user(pres).q<{ shared_at: string | null }>(`select shared_at from public.member_links where member_id = $1 and revoked_at is null`, [m.Grace]);
+    expect(l!.shared_at).not.toBeNull();
+    await expect(db.user(other).q(`select public.share_member_link($1)`, [m.Grace])).rejects.toThrow(/not allowed/);
+  });
+
   it("the ledger rows written by sync are still impossible to edit", async () => {
     await expect(db.user(pres).q(`update public.ledger_entries set amount = 1 where id = $1`, [p1])).rejects.toThrow(/permission denied|cannot be edited/);
   });

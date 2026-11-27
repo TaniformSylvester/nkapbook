@@ -23,7 +23,7 @@ export default async function MeetingPage({ params }: { params: Promise<{ gid: s
         <MeetingMode
           initial={snap}
           lang={lang}
-          t={{ live: t.live, methods: t.methods, attendance: t.attendance, meetings: t.meetings, common: t.common }}
+          t={{ live: t.live, methods: t.methods, attendance: t.attendance, meetings: t.meetings, common: t.common, fines: t.fines, loans: t.loans }}
         />
         <a className="btn btn-ghost btn-block no-print" style={{ marginTop: 16 }} href={`/app/g/${gid}/meetings/${mid}/print`}>{t.exports.printMeeting}</a>
         <section className="card stack no-print" style={{ marginTop: 16 }}>

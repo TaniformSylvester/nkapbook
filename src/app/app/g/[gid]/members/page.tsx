@@ -56,6 +56,7 @@ export default async function MembersPage({
           <Link className="btn" href={`/app/g/${gid}/members/add`}>{t.members.add}</Link>
           <Link className="btn btn-ghost" href={`/app/g/${gid}/members/add#paste`}>{t.members.paste}</Link>
         </div>
+        {active.length > 0 && <Link className="btn btn-ghost btn-block" href={`/app/g/${gid}/links`}>{t.link.bulkTitle}</Link>}
         {active.length === 0 ? <p className="card">{t.members.empty}</p> : <ul className="list">{active.map(row)}</ul>}
         {left.length > 0 && (
           <details>
