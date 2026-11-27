@@ -1,6 +1,6 @@
 "use server";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { clientIp } from "@/lib/client-ip";
 import { normalizeCmPhone, toE164 } from "@/lib/phone";
 import { rateLimit } from "@/lib/supabase/admin";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -11,10 +11,6 @@ export type LoginState = {
   error?: "phone" | "code" | "tooMany" | "generic";
 };
 
-async function clientIp() {
-  const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
-}
 
 export async function sendCode(_prev: LoginState, form: FormData): Promise<LoginState> {
   const phone = normalizeCmPhone(String(form.get("phone") ?? ""));
