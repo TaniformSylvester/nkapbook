@@ -26,6 +26,7 @@ export default async function AppHome() {
     .eq("status", "active")
     .returns<Row[]>();
   const groups = (data ?? []).filter((r) => r.groups);
+  const { data: admin } = await sb.from("platform_admins").select("user_id").eq("user_id", auth.user.id).maybeSingle();
 
   return (
     <>
@@ -53,6 +54,7 @@ export default async function AppHome() {
           </ul>
         )}
         <Link href="/app/new" className="btn btn-block">{t.app.createGroup}</Link>
+        {admin && <Link href="/admin" className="btn btn-ghost btn-block">{t.admin.link}</Link>}
         <p className="small muted">{fill(t.app.signedInAs, { phone: formatCmPhone(auth.user.phone ?? "") })}</p>
         <form action={signOut}>
           <button className="btn btn-ghost">{t.common.signOut}</button>

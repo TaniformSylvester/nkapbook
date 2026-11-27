@@ -126,6 +126,14 @@ describe("group isolation", () => {
     const rows = await db.user(admin).q(`select id from public.groups where id in ($1, $2)`, [groupA, groupB]);
     expect(rows).toHaveLength(2);
   });
+
+  it("the platform admin cannot see members' names or phone numbers, only counts", async () => {
+    expect(await db.user(admin).q(`select phone from public.members where group_id = $1`, [groupA])).toHaveLength(0);
+    expect(await db.user(admin).q(`select phone from public.member_balances where group_id = $1`, [groupA])).toHaveLength(0);
+    const ov = await db.user(admin).q<{ id: string; members: number }>(`select id, members from public.admin_overview() where id = $1`, [groupA]);
+    expect(Number(ov[0]!.members)).toBeGreaterThan(0);
+    await expect(db.user(alice).q(`select * from public.admin_overview()`)).rejects.toThrow(/not allowed/);
+  });
 });
 
 describe("audit trail", () => {

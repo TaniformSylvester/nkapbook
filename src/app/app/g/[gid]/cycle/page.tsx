@@ -79,7 +79,7 @@ export default async function CyclePage({ params }: { params: Promise<{ gid: str
                 const done = !!s.meeting_id;
                 const isNext = s.position === nextPos;
                 return (
-                  <li key={s.id} className="row" style={done ? { opacity: 0.7 } : undefined}>
+                  <li key={s.id} className={`row${done ? " is-done" : ""}`}>
                     <span className="num" style={{ width: 28 }}>{s.position}</span>
                     <span className="row-main">
                       <span className="row-title">{m?.name}{(m?.hands ?? 1) > 1 ? ` · ${fill(c.handNo, { n: s.hand_no })}` : ""}</span>
