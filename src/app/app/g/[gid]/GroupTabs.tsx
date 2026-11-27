@@ -3,13 +3,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 /** Bottom navigation, within thumb reach on a small phone. */
-export function GroupTabs({ gid, labels }: { gid: string; labels: { overview: string; meetings: string; members: string; settings: string } }) {
+export function GroupTabs({ gid, labels }: { gid: string; labels: { overview: string; meetings: string; members: string; money: string; settings: string } }) {
   const path = usePathname();
   const base = `/app/g/${gid}`;
   const items = [
     { href: base, label: labels.overview, active: path === base },
     { href: `${base}/meetings`, label: labels.meetings, active: path.startsWith(`${base}/meetings`) || path.startsWith(`${base}/cycle`) },
     { href: `${base}/members`, label: labels.members, active: path.startsWith(`${base}/members`) },
+    { href: `${base}/money`, label: labels.money, active: path.startsWith(`${base}/money`) },
     { href: `${base}/settings`, label: labels.settings, active: path.startsWith(`${base}/settings`) },
   ];
   return (

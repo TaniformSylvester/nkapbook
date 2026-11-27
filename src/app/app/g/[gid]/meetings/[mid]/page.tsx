@@ -3,6 +3,8 @@ import { AppHeader } from "@/components/AppHeader";
 import { getGroupContext } from "@/lib/group";
 import type { Snapshot } from "@/lib/offline/types";
 import { MeetingMode } from "./MeetingMode";
+import { applyRules } from "../../money/actions";
+import { ApplyRules } from "../../money/ApplyRules";
 
 export default async function MeetingPage({ params }: { params: Promise<{ gid: string; mid: string }> }) {
   const { gid, mid } = await params;
@@ -23,6 +25,9 @@ export default async function MeetingPage({ params }: { params: Promise<{ gid: s
           lang={lang}
           t={{ live: t.live, methods: t.methods, attendance: t.attendance, meetings: t.meetings, common: t.common }}
         />
+        <section className="card stack no-print" style={{ marginTop: 16 }}>
+          <ApplyRules action={applyRules.bind(null, gid, mid)} label={t.fines.apply} hint={t.fines.applyHint} done={t.fines.applied} />
+        </section>
       </main>
     </>
   );
