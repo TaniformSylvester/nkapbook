@@ -15,6 +15,7 @@ export type Group = {
   status: "active" | "paused" | "closed";
   plan: "pilot" | "free" | "paid";
   fines_go_to_fund: boolean;
+  collectors_per_meeting: number;
 };
 
 export type Member = {

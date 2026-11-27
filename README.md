@@ -79,6 +79,17 @@ Dictionaries live in `src/i18n/` (`en.ts` is the source; `fr.ts` and `pcm.ts` mu
 checks this). Pidgin strings need review by a native speaker: run `npm run pidgin:review` to regenerate
 `docs/pidgin-review.md`, and add approved keys to `reviewed` in `src/i18n/pcm.ts`.
 
+## Meeting mode and offline
+
+- Officials open a meeting while they have network (one call). That records what each member owes
+  (hands × contribution) and today's collector(s) from the turn order.
+- Everything recorded after that (attendance, payments, corrections, payout, minutes, closing) is saved first in
+  the phone's IndexedDB with an id made on the phone, then sent in batches to `sync_ops()`. Sending a batch twice
+  records nothing twice. The screen always shows the last server copy plus what's still waiting.
+- The meeting page is kept in the service worker cache, so it reloads without network.
+- The turn-order draw stores a random seed. The order is the hands sorted by `sha256(seed:member_id:hand_no)`, so
+  anyone can recompute it and confirm nobody changed it. Redraws are kept, and the order locks once started.
+
 ## How the records stay trustworthy
 
 - Every amount owed or paid is a row in `ledger_entries`. Rows can never be edited or deleted. A database trigger
