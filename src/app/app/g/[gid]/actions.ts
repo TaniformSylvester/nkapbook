@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { errorKey, type ActionResult } from "@/lib/actions";
 import { readGroupForm } from "@/lib/forms";
 import { parseMemberList } from "@/lib/parse-members";
-import { normalizeCmPhone } from "@/lib/phone";
+import { normalizePhone } from "@/lib/phone";
 import { supabaseServer } from "@/lib/supabase/server";
 import { OFFICIAL_ROLES, ROLES, type Role } from "@/lib/types";
 
@@ -20,7 +20,7 @@ async function client() {
 function readMember(form: FormData) {
   const name = String(form.get("name") ?? "").trim().replace(/\s+/g, " ").slice(0, 80);
   const rawPhone = String(form.get("phone") ?? "").trim();
-  const phone = rawPhone ? normalizeCmPhone(rawPhone) : null;
+  const phone = rawPhone ? normalizePhone(rawPhone) : null;
   const hands = Number(form.get("hands") ?? 1);
   if (!name) return { error: "invalid" as const };
   if (rawPhone && !phone) return { error: "phone" as const };

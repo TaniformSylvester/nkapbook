@@ -3,7 +3,7 @@ import { useActionState, useMemo, useState } from "react";
 import { fill, type Dict } from "@/i18n";
 import type { ActionResult } from "@/lib/actions";
 import { parseMemberList } from "@/lib/parse-members";
-import { formatCmPhone } from "@/lib/phone";
+import { formatPhone } from "@/lib/phone";
 
 type Props = {
   t: Pick<Dict, "paste" | "errors" | "members">;
@@ -46,7 +46,7 @@ export function PasteMembers({ t, action }: Props) {
             {parsed.map((r) =>
               r.ok ? (
                 <li key={r.line} className="preview-line">
-                  {r.name} · {r.phone ? formatCmPhone(r.phone) : t.members.noPhone} · {r.hands === 1 ? t.members.hand : fill(t.members.hands, { n: r.hands })}
+                  {r.name} · {r.phone ? formatPhone(r.phone) : t.members.noPhone} · {r.hands === 1 ? t.members.hand : fill(t.members.hands, { n: r.hands })}
                 </li>
               ) : (
                 <li key={r.line} className="preview-line bad">

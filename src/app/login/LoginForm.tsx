@@ -2,7 +2,7 @@
 import { useActionState } from "react";
 import type { Dict } from "@/i18n";
 import { fill } from "@/i18n";
-import { formatCmPhone } from "@/lib/phone";
+import { formatPhone } from "@/lib/phone";
 import { sendCode, verifyCode, type LoginState } from "./actions";
 
 type LoginText = Dict["login"];
@@ -18,7 +18,7 @@ export function LoginForm({ t }: { t: LoginText }) {
     return (
       <div className="stack">
         <h1>{t.codeTitle}</h1>
-        <p>{fill(t.codeSent, { phone: formatCmPhone(sent.phone) })}</p>
+        <p>{fill(t.codeSent, { phone: formatPhone(sent.phone) })}</p>
         {error && <p className="error" role="alert">{t.errors[error]}</p>}
         <form action={verifyAction} className="stack">
           <input type="hidden" name="phone" value={sent.phone} />
@@ -64,7 +64,7 @@ export function LoginForm({ t }: { t: LoginText }) {
           inputMode="tel"
           autoComplete="tel"
           aria-describedby="phone-hint"
-          defaultValue={sent.phone ? formatCmPhone(sent.phone) : ""}
+          defaultValue={sent.phone ? formatPhone(sent.phone) : ""}
           required
         />
       </div>

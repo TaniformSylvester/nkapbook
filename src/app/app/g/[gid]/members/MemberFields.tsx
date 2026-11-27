@@ -1,5 +1,5 @@
 import type { Dict } from "@/i18n";
-import { formatCmPhone } from "@/lib/phone";
+import { formatPhone } from "@/lib/phone";
 import type { Member } from "@/lib/types";
 
 export function MemberFields({ t, m, withStatus }: { t: Dict; m?: Member; withStatus?: boolean }) {
@@ -20,7 +20,7 @@ export function MemberFields({ t, m, withStatus }: { t: Dict; m?: Member; withSt
           type="tel"
           inputMode="tel"
           aria-describedby="phone-hint"
-          defaultValue={m?.phone ? formatCmPhone(m.phone) : ""}
+          defaultValue={m?.phone ? formatPhone(m.phone) : ""}
           autoComplete="off"
         />
       </div>

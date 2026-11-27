@@ -1,7 +1,7 @@
 import { ActionForm } from "@/components/ActionForm";
 import { fill, type Dict } from "@/i18n";
 import { SITE_URL } from "@/lib/env";
-import { formatCmPhone } from "@/lib/phone";
+import { formatPhone } from "@/lib/phone";
 import { OFFICIAL_ROLES, ROLES, type Member, type Role } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
 import { cancelInvite, changeRole, inviteOfficial } from "./actions";
@@ -18,7 +18,7 @@ export function PendingInvite({ gid, inv, member, groupName, t, canCancel }: {
       <p>
         <strong>{member?.name}</strong> <span className="chip">{t.roles[inv.role]}</span>
         <br />
-        <span className="small muted">{t.officials.pending} · {formatCmPhone(inv.phone)}</span>
+        <span className="small muted">{t.officials.pending} · {formatPhone(inv.phone)}</span>
       </p>
       <a className="btn btn-ghost btn-block" href={waLink(inv.phone, msg)} target="_blank" rel="noopener">
         {t.officials.tellWhatsApp}
@@ -36,7 +36,7 @@ export function InviteForm({ gid, m, t }: { gid: string; m: Member; t: Dict }) {
   if (!m.phone) return <p className="muted">{t.officials.needsPhone}</p>;
   return (
     <ActionForm action={inviteOfficial.bind(null, gid, m.id)} errors={t.errors} submit={t.officials.invite}>
-      <p className="small muted">{fill(t.officials.inviteLead, { phone: formatCmPhone(m.phone) })}</p>
+      <p className="small muted">{fill(t.officials.inviteLead, { phone: formatPhone(m.phone) })}</p>
       <div className="field">
         <label htmlFor="invite-role">{t.officials.role}</label>
         <select id="invite-role" name="role" className="input" defaultValue="secretary">
@@ -52,7 +52,7 @@ export function InviteForm({ gid, m, t }: { gid: string; m: Member; t: Dict }) {
 export function RoleForm({ gid, m, t }: { gid: string; m: Member; t: Dict }) {
   return (
     <ActionForm action={changeRole.bind(null, gid, m.id)} errors={t.errors} submit={t.officials.changeRole} okText={t.groupForm.saved}>
-      {m.phone && <p className="small muted">{fill(t.officials.hasLogin, { phone: formatCmPhone(m.phone) })}</p>}
+      {m.phone && <p className="small muted">{fill(t.officials.hasLogin, { phone: formatPhone(m.phone) })}</p>}
       <div className="field">
         <label htmlFor="role">{t.officials.role}</label>
         <select id="role" name="role" className="input" defaultValue={m.role}>

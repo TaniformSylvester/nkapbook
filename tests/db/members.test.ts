@@ -116,3 +116,31 @@ describe("the group always has a president", () => {
     expect(r[0]!.role).toBe("treasurer");
   });
 });
+
+describe("international phone numbers", () => {
+  it("members and invites accept numbers from other countries; bad Cameroon numbers are still refused", async () => {
+    const ok = await db.user(pres).commit<{ phone: string }>(
+      `insert into public.members (group_id, name, phone) values ($1, 'Comfort (London)', '447911123456'), ($1, 'Che (Paris)', '33612345678') returning phone`, [group]);
+    expect(ok.map((r) => r.phone)).toEqual(["447911123456", "33612345678"]);
+    for (const bad of ["237770123456", "2376701234567", "07911123456", "12345"]) {
+      await expect(db.user(pres).q(`insert into public.members (group_id, name, phone) values ($1, 'x', $2)`, [group, bad])).rejects.toThrow(/phone_number_check/);
+    }
+  });
+
+  it("an official abroad can be invited and signs in with their own number", async () => {
+    const ukPhone = "447700900123";
+    const uk = await db.createUser(ukPhone);
+    // (earlier tests handed the presidency to Ma Grace, so she invites)
+    const [mm] = await db.user(sec).commit<{ id: string }>(`insert into public.members (group_id, name, phone) values ($1, 'Treasurer in UK', $2) returning id`, [group, ukPhone]);
+    await db.user(sec).commit(`insert into public.official_invites (group_id, member_id, phone, role, invited_by) values ($1, $2, $3, 'treasurer', $4)`, [group, mm!.id, ukPhone, sec]);
+    expect((await db.user(uk).commit<{ n: number }>(`select public.accept_invites() n`))[0]!.n).toBe(1);
+    expect(await db.user(uk).q(`select id from public.groups where id = $1`, [group])).toHaveLength(1);
+  });
+
+  it("a president abroad who creates a group gets their number saved", async () => {
+    const us = await db.createUser("16175550123");
+    const gid = (await db.user(us).commit<{ id: string }>(`select public.create_group('Diaspora Njangi', 'Boston', 'en', 'monthly', 1::smallint, 20000, null, 'Pa Nfor') id`))[0]!.id;
+    const [p] = await db.user(us).q<{ phone: string }>(`select phone from public.members where group_id = $1 and user_id = $2`, [gid, us]);
+    expect(p!.phone).toBe("16175550123");
+  });
+});

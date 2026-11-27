@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { TopBar } from "@/components/TopBar";
 import { fill } from "@/i18n";
 import { getT } from "@/i18n/server";
-import { formatCmPhone } from "@/lib/phone";
+import { formatPhone } from "@/lib/phone";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { Role } from "@/lib/types";
 import { signOut } from "../login/actions";
@@ -55,7 +55,7 @@ export default async function AppHome() {
         )}
         <Link href="/app/new" className="btn btn-block">{t.app.createGroup}</Link>
         {admin && <Link href="/admin" className="btn btn-ghost btn-block">{t.admin.link}</Link>}
-        <p className="small muted">{fill(t.app.signedInAs, { phone: formatCmPhone(auth.user.phone ?? "") })}</p>
+        <p className="small muted">{fill(t.app.signedInAs, { phone: formatPhone(auth.user.phone ?? "") })}</p>
         <form action={signOut}>
           <button className="btn btn-ghost">{t.common.signOut}</button>
         </form>
