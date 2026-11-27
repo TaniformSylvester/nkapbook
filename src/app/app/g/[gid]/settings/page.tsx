@@ -63,6 +63,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ gid: 
           ))}
           <p className="small muted">{isPresident ? t.officials.howTo : t.officials.onlyPresident}</p>
         </section>
+        <Link className="btn btn-ghost btn-block" href={`/app/g/${gid}/export`}>{t.exports.title}</Link>
       </main>
     </>
   );

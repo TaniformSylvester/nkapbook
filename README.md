@@ -90,6 +90,33 @@ checks this). Pidgin strings need review by a native speaker: run `npm run pidgi
 - The turn-order draw stores a random seed. The order is the hands sorted by `sha256(seed:member_id:hand_no)`, so
   anyone can recompute it and confirm nobody changed it. Redraws are kept, and the order locks once started.
 
+## WhatsApp reminders
+
+**Now (free):** Meetings → *Send reminders*. Each member's message is written in the chosen language with what's
+due, what they've paid, anything owed from before, their turn date and (optionally) their private link. *Send* opens
+WhatsApp with the message ready (`wa.me` link) and records that it was sent, so the secretary sees who is left.
+
+**Later (automatic, off by default):** `src/lib/reminders/channel.ts` defines a `ReminderChannel` interface with
+two implementations: `waLinkChannel` (used now) and `waCloudChannel` (WhatsApp Business Platform / Cloud API).
+`GET /api/cron/reminders` sends a template the day before a meeting, **only to members with "agrees to receive
+automatic WhatsApp reminders" ticked**, and logs each send. To switch it on:
+
+1. Create a WhatsApp Business account and phone number in Meta Business, and get a permanent access token.
+2. Submit a message template (e.g. `nkapbook_contribution_due`, body with 4 parameters: name, amount, group, day) in
+   English and French. Meta has no Pidgin locale, so register the Pidgin wording under English if you want it.
+3. In Vercel set `FEATURE_WA_CLOUD=true`, `WA_CLOUD_PHONE_NUMBER_ID`, `WA_CLOUD_ACCESS_TOKEN`, `WA_CLOUD_TEMPLATE`
+   and a long random `CRON_SECRET`.
+4. Add a daily Vercel Cron for `/api/cron/reminders` (Vercel sends `Authorization: Bearer $CRON_SECRET`).
+
+Meta charges per business-initiated conversation, so check their current Cameroon pricing first. Another
+provider can be added as a new `ReminderChannel` without touching the rest of the app.
+
+## Exports
+
+Settings → *Export and print*: CSV files of all money records, members and balances, meetings, attendance, loans and
+fines (UTF-8 with BOM so Excel shows accents; cells that look like formulas are neutralised). Each meeting has a
+printable summary and each member a printable statement; "Print / Save as PDF" works from any phone browser.
+
 ## How the records stay trustworthy
 
 - Every amount owed or paid is a row in `ledger_entries`. Rows can never be edited or deleted. A database trigger

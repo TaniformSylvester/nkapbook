@@ -171,3 +171,18 @@ describe("events, fund and balances", () => {
     await expect(db.as({ role: "anon" }, `select * from public.member_balances`)).rejects.toThrow(/permission denied/);
   });
 });
+
+describe("reminder log", () => {
+  it("officials log reminders in their own name only; other groups can't", async () => {
+    await db.user(pres).commit(
+      `insert into public.reminder_log (group_id, member_id, channel, sent_by, for_date) values ($1, $2, 'wa_link', $3, '2026-03-05')`,
+      [gid, m.Mary, pres]);
+    await expect(db.user(pres).q(
+      `insert into public.reminder_log (group_id, member_id, channel, sent_by) values ($1, $2, 'wa_link', $3)`, [gid, m.Mary, other],
+    )).rejects.toThrow(/row-level security/);
+    await expect(db.user(other).q(
+      `insert into public.reminder_log (group_id, member_id, channel, sent_by) values ($1, $2, 'wa_link', $3)`, [gid, m.Mary, other],
+    )).rejects.toThrow(/row-level security/);
+    expect(await db.user(other).q(`select * from public.reminder_log where group_id = $1`, [gid])).toHaveLength(0);
+  });
+});

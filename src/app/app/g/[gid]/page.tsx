@@ -40,6 +40,7 @@ export default async function GroupOverview({ params }: { params: Promise<{ gid:
           <Link className="btn btn-block" href={`/app/g/${gid}/meetings`}>{t.meetings.open}</Link>
         )}
 
+        {count > 0 && <Link className="btn btn-ghost btn-block" href={`/app/g/${gid}/reminders`}>{t.remind.open}</Link>}
         {next.length > 0 && (
           <section className="mm-collector stack">
             <div>
