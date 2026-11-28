@@ -7,13 +7,15 @@ import { formatFcfa } from "@/lib/money";
 import { METHODS } from "@/lib/offline/types";
 import { groupRef, subscriptionConfig, subscriptionState } from "@/lib/subscription";
 import { supabaseServer } from "@/lib/supabase/server";
-import { recordSubscription, setPlan } from "./actions";
+import { SUPPORT_EMAIL } from "@/lib/site";
+import { recordSubscription, sendTestMail, setPlan } from "./actions";
 
 export const metadata = { title: "Platform admin", robots: { index: false } };
 
 type Row = { id: string; name: string; town: string | null; plan: "pilot" | "free" | "trial" | "paid"; created_at: string; members: number; meetings: number; paid_until: string | null };
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ mail?: string }> }) {
+  const { mail } = await searchParams;
   const sb = await supabaseServer();
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) redirect("/login");
@@ -34,6 +36,20 @@ export default async function AdminPage() {
     <>
       <AppHeader lang={lang} t={t} back="/app" title={A.title} sub={`${A.groups}: ${groups.length}`} />
       <main className="wrap stack">
+        <section className="card stack">
+          <h2 style={{ margin: 0 }}>{A.notify.title}</h2>
+          <p className="small muted" style={{ margin: 0 }}>
+            {process.env.SMTP_USER && process.env.SMTP_PASS
+              ? fill(A.notify.on, { email: process.env.ADMIN_NOTIFY_EMAIL || SUPPORT_EMAIL })
+              : A.notify.off}
+          </p>
+          {mail === "ok" && <p className="note small" role="status">{A.notify.ok}</p>}
+          {mail === "fail" && <p className="error small" role="alert">{A.notify.fail}</p>}
+          {mail === "off" && <p className="error small" role="alert">{A.notify.off}</p>}
+          <form action={sendTestMail}>
+            <button className="btn btn-ghost btn-block">{A.notify.test}</button>
+          </form>
+        </section>
         <ul className="list">
           {groups.map((g) => {
             const s = subscriptionState(g, today);

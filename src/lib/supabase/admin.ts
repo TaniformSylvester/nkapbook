@@ -4,7 +4,8 @@ import { SUPABASE_URL } from "@/lib/env";
 
 /**
  * Service-role client. SERVER ONLY: bypasses RLS. Used only for
- * rate limiting and the member-link functions, which check access themselves.
+ * rate limiting, the member-link functions (which check access themselves), and the admin email job
+ * (behind CRON_SECRET, reads group-level fields only).
  */
 export function supabaseAdmin() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;

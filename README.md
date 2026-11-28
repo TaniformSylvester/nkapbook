@@ -58,7 +58,9 @@ Open http://localhost:3000.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | browser + server | the **publishable** key (`sb_publishable_…`). Safe in the browser: Row Level Security protects the data |
 | `SUPABASE_SERVICE_ROLE_KEY` | **server only** | the **secret** key (`sb_secret_…`). Used for member links and rate limits. Never prefix with `NEXT_PUBLIC_`, never commit it |
 | `NEXT_PUBLIC_SITE_URL` | both | `https://nkapbook.com` in production; builds member links and reminder messages |
-| `FEATURE_WA_CLOUD`, `WA_CLOUD_*`, `CRON_SECRET` | server | automatic WhatsApp reminders, off by default (see below) |
+| `FEATURE_WA_CLOUD`, `WA_CLOUD_*` | server | automatic WhatsApp reminders, off by default (see below) |
+| `CRON_SECRET` | server, secret | protects the scheduled jobs (admin emails, automatic reminders) |
+| `SMTP_USER`, `SMTP_PASS`, `SMTP_HOST`, `ADMIN_NOTIFY_EMAIL` | server, `SMTP_PASS` secret | admin email notifications (see below) |
 
 ---
 
@@ -177,6 +179,26 @@ This is the group paying **you** for the service; NkapBook still never holds gro
   finishing a meeting that's already open, including offline sync. Paying unlocks it straight away.
 - *Pilot* and *Free* groups are never paused and never see payment notices. Set them in /admin.
 
+### Admin email notifications
+
+You get an email at `support@nkapbook.com` (or `ADMIN_NOTIFY_EMAIL`) when:
+
+- **a new group signs up** (sent right after it's created; a failed email never blocks sign-up),
+- **a trial or paid plan ends in 7 days** (daily check),
+- **every Monday**: a summary of new groups, plans ending in the next 14 days, groups in grace, and paused groups.
+
+Emails only contain group-level facts (name, town, plan, dates, reference), never members' names or numbers.
+
+Setup:
+1. In Zoho, create an **app-specific password** (Zoho Accounts → Security → App passwords).
+2. In Vercel → Settings → Environment Variables add `SMTP_USER` (your Zoho login), `SMTP_PASS` (the app password)
+   and `CRON_SECRET` (a long random string; Vercel Cron sends it automatically). `SMTP_HOST` defaults to
+   `smtppro.zoho.com`. Redeploy.
+3. Open **/admin → Send a test email**.
+
+The daily job is `/api/cron/admin-digest`, scheduled in `vercel.json` at 06:00 UTC (07:00 in Douala). To send the
+weekly summary right away: `curl -H "Authorization: Bearer $CRON_SECRET" "https://nkapbook.com/api/cron/admin-digest?weekly=1"`.
+
 ### WhatsApp reminders
 
 **Now (free):** Meetings → *Send reminders*. Each member's message is written in the chosen language with what's
@@ -193,7 +215,7 @@ ticked**, and logs each send. To switch it on:
    English and French. Meta has no Pidgin locale; register the Pidgin wording under English if you want it.
 3. In Vercel set `FEATURE_WA_CLOUD=true`, `WA_CLOUD_PHONE_NUMBER_ID`, `WA_CLOUD_ACCESS_TOKEN`, `WA_CLOUD_TEMPLATE`
    and a long random `CRON_SECRET`.
-4. Add a daily Vercel Cron for `/api/cron/reminders` (Vercel sends `Authorization: Bearer $CRON_SECRET`).
+4. Add `/api/cron/reminders` to the crons in `vercel.json` (Vercel sends `Authorization: Bearer $CRON_SECRET`).
 
 Meta charges per business-initiated conversation; check their current Cameroon pricing first. Another provider can be
 added as a new `ReminderChannel` without touching the rest of the app.

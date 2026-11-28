@@ -1,7 +1,10 @@
 "use server";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { errorKey, type ActionResult } from "@/lib/actions";
 import { readGroupForm } from "@/lib/forms";
+import { sendAdminMail } from "@/lib/notify/mail";
+import { newGroupMail, type GroupRow } from "@/lib/notify/templates";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export async function createGroup(_prev: ActionResult, form: FormData): Promise<ActionResult> {
@@ -20,5 +23,11 @@ export async function createGroup(_prev: ActionResult, form: FormData): Promise<
     p_president_name: yourName,
   });
   if (error || !data) return { error: errorKey(error) };
-  redirect(`/app/g/${data as string}/members`);
+  const gid = data as string;
+  // Tell the NkapBook admin, after the response is sent. A failed email never affects sign-up.
+  after(async () => {
+    const { data: row } = await sb.from("groups").select("id, name, town, plan, paid_until, created_at").eq("id", gid).maybeSingle<GroupRow>();
+    if (row) await sendAdminMail(newGroupMail(row));
+  });
+  redirect(`/app/g/${gid}/members`);
 }
