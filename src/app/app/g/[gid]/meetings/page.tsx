@@ -4,6 +4,8 @@ import { AppHeader } from "@/components/AppHeader";
 import { fill } from "@/i18n";
 import { getGroupContext } from "@/lib/group";
 import { formatFcfa } from "@/lib/money";
+import { canOpenMeetings, subscriptionState } from "@/lib/subscription";
+import { todayDouala } from "../Subscription";
 import { openMeeting } from "./actions";
 
 type Row = { id: string; date: string; status: "planned" | "open" | "closed" };
@@ -40,6 +42,13 @@ export default async function MeetingsPage({ params }: { params: Promise<{ gid: 
           <Link className="btn btn-block" href={`/app/g/${gid}/meetings/${openOne.id}`}>{t.meetings.continue}</Link>
         )}
         {!cycle && <p className="note">{t.meetings.noCycle} <Link href={`/app/g/${gid}/cycle`}>{t.cycle.title} →</Link></p>}
+        {!canOpenMeetings(subscriptionState(group, todayDouala())) ? (
+          <div className="card stack" role="status">
+            <h2 style={{ margin: 0 }}>{t.meetings.open}</h2>
+            <p style={{ margin: 0 }}>{t.errors.subscriptionEnded}</p>
+            <Link className="btn btn-block" href={`/app/g/${gid}/settings#subscription`}>{t.sub.renew}</Link>
+          </div>
+        ) : (
         <ActionForm action={openMeeting.bind(null, gid)} errors={t.errors} submit={t.meetings.openBtn} className="card stack">
           <h2 style={{ margin: 0 }}>{t.meetings.open}</h2>
           <p className="small muted">{t.meetings.openHint}</p>
@@ -48,6 +57,7 @@ export default async function MeetingsPage({ params }: { params: Promise<{ gid: 
             <input id="date" name="date" type="date" className="input" required defaultValue={(nextSlot?.planned_date as string | undefined) ?? today} />
           </div>
         </ActionForm>
+        )}
         <div className="actions">
           <Link href={`/app/g/${gid}/reminders`} className="btn btn-ghost">{t.remind.open}</Link>
           <Link href={`/app/g/${gid}/cycle`} className="btn btn-ghost">{t.cycle.title}</Link>

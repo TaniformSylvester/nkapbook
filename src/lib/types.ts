@@ -13,7 +13,7 @@ export type Group = {
   contribution_per_hand: number;
   start_date: string;
   status: "active" | "paused" | "closed";
-  plan: "pilot" | "free" | "paid";
+  plan: "pilot" | "free" | "trial" | "paid";
   fines_go_to_fund: boolean;
   collectors_per_meeting: number;
   paid_until: string | null;
