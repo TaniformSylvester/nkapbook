@@ -53,7 +53,7 @@ const en: Policy = {
         "Vercel: hosts the website. Pages may be served from servers in other countries.",
         "Twilio: sends sign-in codes by SMS.",
         "Stripe: card payments for the NkapBook subscription, if you pay by card.",
-        "Zoho: our email, if you write to us.",
+        "Zoho: our email, if you write to us, and short notices to us about groups (group name, town and plan only).",
       ],
     },
     {
@@ -148,7 +148,7 @@ const fr: Policy = {
         "Vercel : héberge le site. Les pages peuvent être servies depuis des serveurs dans d’autres pays.",
         "Twilio : envoie les codes de connexion par SMS.",
         "Stripe : paiements par carte de l’abonnement NkapBook, si vous payez par carte.",
-        "Zoho : notre messagerie, si vous nous écrivez.",
+        "Zoho : notre messagerie, si vous nous écrivez, et de courtes notifications sur les groupes (nom, ville et formule seulement).",
       ],
     },
     {

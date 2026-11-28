@@ -1,5 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { sendAdminMail } from "@/lib/notify/mail";
+import { testMail } from "@/lib/notify/templates";
 import { parseAmount } from "@/lib/forms";
 import { METHODS } from "@/lib/offline/types";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -25,4 +28,15 @@ export async function recordSubscription(gid: string, form: FormData) {
     p_reference: String(form.get("reference") ?? "").slice(0, 64), p_note: null,
   });
   revalidatePath("/admin");
+}
+
+/** Sends a test email to the admin address, so the SMTP settings can be checked from the phone. */
+export async function sendTestMail() {
+  const sb = await supabaseServer();
+  const { data: auth } = await sb.auth.getUser();
+  if (!auth.user) redirect("/login");
+  const { data: me } = await sb.from("platform_admins").select("user_id").eq("user_id", auth.user.id).maybeSingle();
+  if (!me) redirect("/admin");
+  const r = await sendAdminMail(testMail());
+  redirect(`/admin?mail=${r.sent ? "ok" : r.reason === "not_configured" ? "off" : "fail"}`);
 }
