@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Footer } from "@/components/Footer";
 import { TopBar } from "@/components/TopBar";
 import { getT } from "@/i18n/server";
 import { getUser } from "@/lib/supabase/server";
@@ -24,6 +25,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <LoginForm t={t.login} step={step} phone={phone} error={error} />
         </div>
       </main>
+      <Footer t={t} />
     </>
   );
 }

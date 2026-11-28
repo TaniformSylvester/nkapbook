@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Footer } from "@/components/Footer";
 import { TopBar } from "@/components/TopBar";
 import { getT } from "@/i18n/server";
 
@@ -16,6 +17,7 @@ export default async function Home() {
         </Link>
         <p className="small muted">{t.home.forMembers}</p>
       </main>
+      <Footer t={t} />
     </>
   );
 }

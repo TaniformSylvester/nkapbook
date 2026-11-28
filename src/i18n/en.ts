@@ -17,6 +17,20 @@ const en = {
     online: "Back online",
     tryAgain: "Try again",
   },
+  footer: {
+    contact: "Contact",
+    privacy: "Privacy",
+    englishOnly: "This page is in English and French only.",
+  },
+  contact: {
+    title: "Contact NkapBook",
+    lead: "Questions, problems, ideas, or help paying the subscription: write to us.",
+    email: "Email",
+    whatsapp: "Message us on WhatsApp",
+    waText: "Hello NkapBook, ",
+    reply: "We usually reply within one working day.",
+    members: "Members: for questions about your contributions, turn or balance, please ask your group’s secretary or treasurer first. NkapBook only keeps the records and can’t see or move your group’s money.",
+  },
   home: {
     headline: "Your njangi records, clear for everybody.",
     lead: "Record contributions, turns, fines and loans at the meeting, even with weak network. Every member sees their own record on a private link.",

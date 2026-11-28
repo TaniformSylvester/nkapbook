@@ -17,6 +17,20 @@ const fr: Dict = {
     online: "De nouveau en ligne",
     tryAgain: "Réessayer",
   },
+  footer: {
+    contact: "Contact",
+    privacy: "Confidentialité",
+    englishOnly: "Cette page existe en anglais et en français seulement.",
+  },
+  contact: {
+    title: "Contacter NkapBook",
+    lead: "Questions, problèmes, idées, ou aide pour payer l’abonnement : écrivez-nous.",
+    email: "E-mail",
+    whatsapp: "Écrivez-nous sur WhatsApp",
+    waText: "Bonjour NkapBook, ",
+    reply: "Nous répondons en général sous un jour ouvrable.",
+    members: "Membres : pour une question sur vos cotisations, votre tour ou votre solde, demandez d’abord au secrétaire ou au trésorier de votre groupe. NkapBook ne fait que tenir les registres et ne peut ni voir ni déplacer l’argent de votre groupe.",
+  },
   home: {
     headline: "Les comptes de votre njangi, clairs pour tout le monde.",
     lead: "Enregistrez cotisations, tours, amendes et prêts pendant la réunion, même avec un réseau faible. Chaque membre voit son propre compte sur un lien privé.",

@@ -73,7 +73,7 @@ test("public pages pass an automated accessibility scan (WCAG 2.1 AA) in all thr
   const { default: AxeBuilder } = await import("@axe-core/playwright");
   for (const lang of ["en", "fr", "pcm"]) {
     await context.addCookies([{ name: "nk_lang", value: lang, url: "http://localhost:3100" }]);
-    for (const path of ["/", "/login", "/offline", "/m/not-a-real-token"]) {
+    for (const path of ["/", "/login", "/offline", "/m/not-a-real-token", "/privacy", "/contact"]) {
       await page.goto(path);
       const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
       expect(r.violations.map((v) => `${lang} ${path}: ${v.id}`)).toEqual([]);
@@ -96,5 +96,20 @@ test("sign-in works even when the phone doesn't run scripts", async ({ browser }
   await page.fill("#phone", "12345");
   await Promise.all([page.waitForURL(/e=phone/), page.click("form:has(#phone) button")]);
   await expect(page.locator(".error")).toContainText("valid phone number");
+  await ctx.close();
+});
+
+test("privacy and contact pages are public, linked from the home page, and fit a 360px phone", async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 360, height: 740 } });
+  await ctx.addCookies([{ name: "nk_lang", value: "fr", url: "http://localhost:3100" }]);
+  const page = await ctx.newPage();
+  await page.goto("/");
+  await page.click("footer >> text=Confidentialité");
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.locator("h1")).toHaveText("Politique de confidentialité");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+  await page.click("footer >> text=Contact");
+  await expect(page.locator('a[href="mailto:support@nkapbook.com"]')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
   await ctx.close();
 });

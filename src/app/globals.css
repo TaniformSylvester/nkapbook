@@ -225,3 +225,11 @@ input[type="date"].input { font-size: 1rem; padding: 0 var(--s2); }
 @media print { .table-scroll { overflow: visible; } }
 .mm-extra h4 { margin: 0 0 4px; font-family: var(--font-head); font-size: 0.95rem; }
 .mm-extra { border-top: 1px dashed var(--line); padding-top: var(--s3); }
+
+/* Footer and long-form pages (privacy, contact) */
+.footer { display: flex; gap: var(--s2); justify-content: center; align-items: center; padding-top: var(--s4); padding-bottom: var(--s5); }
+.footer a { color: inherit; display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--s2); }
+.prose h2 { font-size: 1.15rem; margin: var(--s4) 0 var(--s2); }
+.prose p, .prose li { line-height: 1.55; }
+.prose ul { padding-left: 20px; }
+.prose a { overflow-wrap: anywhere; }

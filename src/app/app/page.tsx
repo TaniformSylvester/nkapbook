@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Footer } from "@/components/Footer";
 import { redirect } from "next/navigation";
 import { TopBar } from "@/components/TopBar";
 import { fill } from "@/i18n";
@@ -60,6 +61,7 @@ export default async function AppHome() {
           <button className="btn btn-ghost">{t.common.signOut}</button>
         </form>
       </main>
+      <Footer t={t} />
     </>
   );
 }
