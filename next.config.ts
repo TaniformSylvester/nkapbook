@@ -2,7 +2,9 @@ import type { NextConfig } from "next";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "Referrer-Policy", value: "no-referrer" }, // member links carry a secret token
+  // Member links carry a secret token: never send the address to other sites. "same-origin" (not
+  // "no-referrer") so plain form posts keep their Origin header and work on phones without scripts.
+  { key: "Referrer-Policy", value: "same-origin" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 ];
