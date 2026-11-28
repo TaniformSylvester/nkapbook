@@ -31,7 +31,7 @@ much, how, when, and who recorded it.
 | Dashboard | Who owes what, fund balance, overdue loans, next turns |
 | Reminders | Personalised WhatsApp messages, sent with one tap through `wa.me` (free). Automatic sending is built but off |
 | Exports | CSV of everything; printable meeting summary and member statement (Save as PDF) |
-| Platform admin | `/admin`: all groups with counts, plan (pilot / free / paid) and subscription; record payments. No member names or phone numbers |
+| Platform admin | `/admin`: all groups with counts, plan (trial / paid / pilot / free) and subscription; record payments. No member names or phone numbers |
 
 **Trust:** money records can't be edited or deleted by anyone; a correction is a new line with a reason, visible to
 the member. Every other change goes to an audit log automatically.
@@ -111,7 +111,7 @@ To set up a **new** project from scratch:
       from abroad, also allow those countries in the provider (e.g. Twilio → Messaging → Geo permissions).
 - [ ] Remove or expire the **test phone numbers** in Supabase.
 - [ ] Make yourself **platform admin** (step 1.6).
-- [ ] Set your **subscription payment numbers** in Vercel (see Subscriptions below), then move groups from *Pilot* to *Paid* when you start charging.
+- [ ] Set your **subscription payment numbers** in Vercel (see Subscriptions below), New groups start on a 2-month free trial automatically.
 - [ ] Review the Pidgin wording: `npm run pidgin:review` writes `docs/pidgin-review.md`.
 - [ ] **Backups:** the Supabase free plan keeps limited backups. For real money records, consider the Pro plan
       (daily backups) or export CSVs regularly (Settings → Export and print).
@@ -159,7 +159,10 @@ To set up a **new** project from scratch:
 
 This is the group paying **you** for the service; NkapBook still never holds group money.
 
-- Price: `SUBSCRIPTION_PRICE_XAF` (default **2,000 FCFA per month** for the whole group).
+- **Every new group gets a 2-month free trial.** Then 2,000 FCFA a month for the whole group, 10,000 for 6 months,
+  20,000 for 12 months (`SUBSCRIPTION_PRICE_XAF`, `SUBSCRIPTION_PRICE_6M`, `SUBSCRIPTION_PRICE_12M`).
+- Card payments (diaspora members): create a Stripe Payment Link and set `SUBSCRIPTION_STRIPE_LINK`. Officials get a
+  *Pay by card* button; the group reference is passed as `client_reference_id`, so you can match it in Stripe.
 - Set your payment details in Vercel: `SUBSCRIPTION_MTN_NUMBER`, `SUBSCRIPTION_ORANGE_NUMBER`,
   `SUBSCRIPTION_PAYEE_NAME` and optionally `SUBSCRIPTION_WHATSAPP_NUMBER` (defaults to the MTN number). They're kept
   out of the code on purpose. Redeploy after changing them.
@@ -168,8 +171,11 @@ This is the group paying **you** for the service; NkapBook still never holds gro
 - When a treasurer has paid, open **/admin** → the group → *Record payment* (1, 3, 6 or 12 months, amount, method,
   MoMo reference). The plan becomes *Paid* and the end date moves forward from today, or from the current end date if
   they paid early. Every payment is kept and can't be edited.
-- 7 days before the end, and after it, officials see a friendly notice on the Overview. **Nothing is blocked**:
-  records stay visible and exportable. *Pilot* and *Free* groups never see payment notices.
+- 7 days before the end (trial or paid), officials see a notice on the Overview.
+- After the end there are **14 days of grace**. After that, only **opening a new meeting** is paused (checked in the
+  database, not just the screen). Everything else keeps working: records, exports, member links, reminders, and
+  finishing a meeting that's already open, including offline sync. Paying unlocks it straight away.
+- *Pilot* and *Free* groups are never paused and never see payment notices. Set them in /admin.
 
 ### WhatsApp reminders
 

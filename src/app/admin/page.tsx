@@ -11,7 +11,7 @@ import { recordSubscription, setPlan } from "./actions";
 
 export const metadata = { title: "Platform admin", robots: { index: false } };
 
-type Row = { id: string; name: string; town: string | null; plan: "pilot" | "free" | "paid"; created_at: string; members: number; meetings: number; paid_until: string | null };
+type Row = { id: string; name: string; town: string | null; plan: "pilot" | "free" | "trial" | "paid"; created_at: string; members: number; meetings: number; paid_until: string | null };
 
 export default async function AdminPage() {
   const sb = await supabaseServer();
@@ -27,7 +27,7 @@ export default async function AdminPage() {
   const { data } = await sb.rpc("admin_overview");
   const groups = (data ?? []) as Row[];
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Douala" });
-  const price = subscriptionConfig().price;
+  const prices = subscriptionConfig().prices;
   const f = (n: number) => formatFcfa(n, lang);
 
   return (
@@ -43,15 +43,17 @@ export default async function AdminPage() {
                   <div className="row-title">{g.name}{g.town ? ` · ${g.town}` : ""} <span className="small muted">{groupRef(g.id)}</span></div>
                   <div className="row-sub">{fill(A.stats, { members: Number(g.members), meetings: Number(g.meetings), date: fmtDate(lang, g.created_at, { day: "numeric", month: "short", year: "numeric" }) })}</div>
                   <div className="small">
-                    {A.paidUntil}: <strong>{g.paid_until ? fmtDate(lang, g.paid_until) : A.noEnd}</strong>{" "}
-                    {s.kind === "expired" && g.paid_until && <span className="chip chip-danger">{t.loans.overdue}</span>}
-                    {s.kind === "ending" && <span className="chip">{s.daysLeft} d</span>}
+                    <span className="chip">{A.plans[g.plan]}</span>{" "}
+                    {g.plan === "trial" ? A.trialUntil : A.paidUntil}: <strong>{g.paid_until ? fmtDate(lang, g.paid_until) : A.noEnd}</strong>{" "}
+                    {s.kind === "locked" && <span className="chip chip-danger">{A.locked}</span>}
+                    {s.kind === "grace" && <span className="chip chip-danger">{A.grace}</span>}
+                    {(s.kind === "trial" || s.kind === "active") && s.ending && <span className="chip">{s.daysLeft} d</span>}
                   </div>
                 </div>
                 <form action={setPlan.bind(null, g.id)} style={{ display: "flex", gap: 8 }}>
                   <label className="visually-hidden" htmlFor={`plan-${g.id}`}>{A.plan}</label>
                   <select id={`plan-${g.id}`} name="plan" className="input" defaultValue={g.plan} style={{ flex: 1 }}>
-                    {(["pilot", "free", "paid"] as const).map((p) => <option key={p} value={p}>{A.plans[p]}</option>)}
+                    {(["trial", "paid", "pilot", "free"] as const).map((p) => <option key={p} value={p}>{A.plans[p]}</option>)}
                   </select>
                   <button className="btn" style={{ padding: "0 12px" }}>{A.save}</button>
                 </form>
@@ -62,12 +64,12 @@ export default async function AdminPage() {
                       <div className="field">
                         <label htmlFor={`m-${g.id}`}>{A.months}</label>
                         <select id={`m-${g.id}`} name="months" className="input" defaultValue="1">
-                          {[1, 3, 6, 12].map((n) => <option key={n} value={n}>{n} · {f(n * price)}</option>)}
+                          {([1, 3, 6, 12] as const).map((n) => <option key={n} value={n}>{n} · {f(prices[n])}</option>)}
                         </select>
                       </div>
                       <div className="field">
                         <label htmlFor={`a-${g.id}`}>{t.money.amount}</label>
-                        <input id={`a-${g.id}`} name="amount" className="input num" inputMode="numeric" required defaultValue={price} />
+                        <input id={`a-${g.id}`} name="amount" className="input num" inputMode="numeric" required defaultValue={prices[1]} />
                       </div>
                     </div>
                     <div className="grid2">
