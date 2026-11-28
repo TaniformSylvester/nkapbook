@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { automaticChannel } from "@/lib/reminders/channel";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { fmtDate } from "@/lib/dates";
-import { formatFcfa } from "@/lib/money";
+import { formatMoney } from "@/lib/money";
 import type { Group } from "@/lib/types";
 
 /**
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
         template: {
           name: process.env.WA_CLOUD_TEMPLATE ?? "nkapbook_contribution_due",
           lang: g.language,
-          params: [first, formatFcfa((m.hands as number) * g.contribution_per_hand, g.language), g.name, fmtDate(g.language, tomorrow, { weekday: "long", day: "numeric", month: "long" })],
+          params: [first, formatMoney((m.hands as number) * g.contribution_per_hand, g.language, g.currency), g.name, fmtDate(g.language, tomorrow, { weekday: "long", day: "numeric", month: "long" })],
         },
       });
       if (r.ok) {

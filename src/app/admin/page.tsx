@@ -84,7 +84,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                         </select>
                       </div>
                       <div className="field">
-                        <label htmlFor={`a-${g.id}`}>{t.money.amount}</label>
+                        <label htmlFor={`a-${g.id}`}>{fill(t.money.amount, { cur: "FCFA" })}</label>
                         <input id={`a-${g.id}`} name="amount" className="input num" inputMode="numeric" required defaultValue={prices[1]} />
                       </div>
                     </div>

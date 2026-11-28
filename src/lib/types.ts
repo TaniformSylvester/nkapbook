@@ -14,6 +14,7 @@ export type Group = {
   start_date: string;
   status: "active" | "paused" | "closed";
   plan: "pilot" | "free" | "trial" | "paid";
+  currency: string;
   fines_go_to_fund: boolean;
   collectors_per_meeting: number;
   paid_until: string | null;

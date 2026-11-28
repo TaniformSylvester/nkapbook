@@ -4,7 +4,7 @@ import { PrintButton } from "@/components/PrintButton";
 import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { currencyLabel, formatMoney } from "@/lib/money";
 import { formatPhone } from "@/lib/phone";
 
 const IN = ["contribution_paid", "fine_paid", "loan_repaid", "event_paid", "fund_deposit"];
@@ -21,7 +21,7 @@ export default async function Statement({ params }: { params: Promise<{ gid: str
     sb.from("cycle_slots").select("planned_date, hand_no, meeting_id, cycles!inner(status)").eq("member_id", mid).in("cycles.status", ["active", "draft"]).order("position"),
   ]);
   const mdate = new Map((meetings ?? []).map((m) => [m.id as string, m.date as string]));
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, group.currency);
   const X = t.exports;
   const K = t.me.kinds;
   const owing = Math.max(0, Number(b.contribution_owing)) + Math.max(0, Number(b.fines_owing)) + Math.max(0, Number(b.events_owing));
@@ -50,7 +50,7 @@ export default async function Statement({ params }: { params: Promise<{ gid: str
       )}
       <h2>{t.me.history}</h2>
       <div className="table-scroll" tabIndex={0} role="region" aria-label={X.totals}><table className="print-table">
-        <thead><tr><th>{t.meetings.date}</th><th>{X.details}</th><th className="r">FCFA</th></tr></thead>
+        <thead><tr><th>{t.meetings.date}</th><th>{X.details}</th><th className="r">{currencyLabel(group.currency)}</th></tr></thead>
         <tbody>
           {(entries ?? []).map((e) => (
             <tr key={e.id as string} className={e.reverses_entry_id ? "corr" : ""}>

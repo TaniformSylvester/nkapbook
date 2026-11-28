@@ -5,13 +5,13 @@ import { AmountField, MemberSelect, MethodSelect, OpId } from "@/components/Fiel
 import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { currencyLabel, formatMoney } from "@/lib/money";
 import { addGuarantor, loanEntry, removeGuarantor } from "../../actions";
 import type { LoanRow } from "../page";
 
 export default async function LoanPage({ params }: { params: Promise<{ gid: string; lid: string }> }) {
   const { gid, lid } = await params;
-  const { sb, lang, t } = await getGroupContext(gid);
+  const { sb, group, lang, t } = await getGroupContext(gid);
   if (!/^[0-9a-f-]{36}$/i.test(lid)) notFound();
   const { data: l } = await sb.from("loan_balances").select("*").eq("id", lid).eq("group_id", gid).maybeSingle<LoanRow>();
   if (!l) notFound();
@@ -20,7 +20,7 @@ export default async function LoanPage({ params }: { params: Promise<{ gid: stri
     sb.from("loan_guarantors").select("member_id, members(name)").eq("loan_id", lid),
     sb.from("members").select("id, name").eq("group_id", gid).eq("status", "active").order("name"),
   ]);
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, group.currency);
   const L = t.loans;
   const gIds = new Set((guarantors ?? []).map((g) => g.member_id as string));
   const candidates = (members ?? []).filter((m) => m.id !== l.member_id && !gIds.has(m.id));
@@ -50,7 +50,7 @@ export default async function LoanPage({ params }: { params: Promise<{ gid: stri
             <ActionForm action={loanEntry.bind(null, gid, lid, "loan_repayment")} errors={t.errors} submit={L.repay} okText={t.money.saved}>
               <OpId />
               <div className="grid2">
-                <AmountField label={t.money.amount} defaultValue={l.balance} />
+                <AmountField label={fill(t.money.amount, { cur: currencyLabel(group.currency) })} defaultValue={l.balance} />
                 <MethodSelect t={t} />
               </div>
             </ActionForm>
@@ -98,7 +98,7 @@ export default async function LoanPage({ params }: { params: Promise<{ gid: stri
             <ActionForm action={loanEntry.bind(null, gid, lid, "loan_interest")} errors={t.errors} submit={L.addInterest} okText={t.money.saved}>
               <OpId />
               <p className="small muted">{L.addInterestHint}</p>
-              <AmountField label={t.money.amount} id="interest_amount" />
+              <AmountField label={fill(t.money.amount, { cur: currencyLabel(group.currency) })} id="interest_amount" />
               <div className="field">
                 <label htmlFor="reason">{t.money.reason}</label>
                 <input id="reason" name="reason" className="input" required minLength={3} maxLength={500} />

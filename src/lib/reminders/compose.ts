@@ -1,5 +1,5 @@
 import { fill, getDict, type Lang } from "@/i18n";
-import { formatFcfa } from "@/lib/money";
+import { formatMoney } from "@/lib/money";
 
 export type ReminderData = {
   name: string; // first name is used
@@ -10,12 +10,13 @@ export type ReminderData = {
   owing: number; // arrears from before this meeting
   turn?: string | null; // formatted date of their next turn
   url?: string | null; // their private link
+  currency?: string; // the group's currency (default FCFA)
 };
 
 /** A friendly, never threatening reminder in the member's language. */
 export function composeReminder(lang: Lang, d: ReminderData): string {
   const m = getDict(lang).remind.msg;
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, d.currency);
   const first = d.name.trim().split(/\s+/)[0] ?? d.name;
   const parts = [
     `${fill(m.hello, { name: first })} ${fill(m.due, { amount: f(d.amount), group: d.group, day: d.day })}`,

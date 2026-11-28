@@ -54,7 +54,7 @@ export async function loadReminderRows(sb: SupabaseClient, g: Group, date: strin
       opted_in: m.whatsapp_opt_in as boolean,
       sent_at: last.get(m.id as string) ?? null,
       text: composeReminder(lang, {
-        name: m.name as string, group: g.name, amount, day, paid: Number(b?.contributions_paid ?? 0), owing,
+        name: m.name as string, group: g.name, currency: g.currency, amount, day, paid: Number(b?.contributions_paid ?? 0), owing,
         turn: t ? fmtDate(lang, t, { day: "numeric", month: "long" }) : null,
         url: token ? `${SITE_URL}/m/${token}` : null,
       }),

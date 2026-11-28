@@ -5,12 +5,12 @@ import { AppHeader } from "@/components/AppHeader";
 import { AmountField, MethodSelect, OpId } from "@/components/Fields";
 import { fill } from "@/i18n";
 import { getGroupContext } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { currencyLabel, formatMoney } from "@/lib/money";
 import { eventPayout, payEvent } from "../../actions";
 
 export default async function EventPage({ params }: { params: Promise<{ gid: string; eid: string }> }) {
   const { gid, eid } = await params;
-  const { sb, lang, t } = await getGroupContext(gid);
+  const { sb, group, lang, t } = await getGroupContext(gid);
   if (!/^[0-9a-f-]{36}$/i.test(eid)) notFound();
   const { data: ev } = await sb.from("social_events").select("*").eq("id", eid).eq("group_id", gid).maybeSingle();
   if (!ev) notFound();
@@ -19,7 +19,7 @@ export default async function EventPage({ params }: { params: Promise<{ gid: str
     sb.from("ledger_net").select("id, net").eq("event_id", eid).eq("kind", "event_payout"),
     ev.for_member_id ? sb.from("members").select("name").eq("id", ev.for_member_id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, group.currency);
   const E = t.events;
   const due = (rows ?? []).reduce((s, r) => s + Number(r.due), 0);
   const paid = (rows ?? []).reduce((s, r) => s + Number(r.paid), 0);
@@ -60,7 +60,7 @@ export default async function EventPage({ params }: { params: Promise<{ gid: str
             <ActionForm action={eventPayout.bind(null, gid, eid)} errors={t.errors} submit={fill(E.handOver, { name: forName })} okText={t.money.saved}>
               <OpId />
               <div className="grid2">
-                <AmountField label={t.money.amount} defaultValue={Math.max(0, paid - handed) || undefined} />
+                <AmountField label={fill(t.money.amount, { cur: currencyLabel(group.currency) })} defaultValue={Math.max(0, paid - handed) || undefined} />
                 <MethodSelect t={t} />
               </div>
             </ActionForm>

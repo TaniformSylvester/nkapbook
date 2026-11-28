@@ -4,13 +4,13 @@ import { fill, type Dict, type Lang } from "@/i18n";
 import type { ActionResult } from "@/lib/actions";
 import { parseAmount } from "@/lib/forms";
 import { loanInterest, termMonths } from "@/lib/loans";
-import { formatFcfa } from "@/lib/money";
+import { currencyLabel, formatMoney } from "@/lib/money";
 import { METHODS } from "@/lib/offline/types";
 
 type T = Pick<Dict, "loans" | "money" | "methods" | "errors">;
 
-export function LoanForm({ t, lang, members, fund, action, opId, today }: {
-  t: T; lang: Lang; members: { id: string; name: string }[]; fund: number; opId: string; today: string;
+export function LoanForm({ t, lang, currency, members, fund, action, opId, today }: {
+  t: T; lang: Lang; currency: string; members: { id: string; name: string }[]; fund: number; opId: string; today: string;
   action: (p: ActionResult, f: FormData) => Promise<ActionResult>;
 }) {
   const [state, run, pending] = useActionState<ActionResult, FormData>(action, null);
@@ -29,7 +29,8 @@ export function LoanForm({ t, lang, members, fund, action, opId, today }: {
   const months = start && due && due >= start ? termMonths(start, due) : 0;
   const interest = months ? loanInterest(p, r, basis, months) : 0;
   const L = t.loans;
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, currency);
+  const cur = currencyLabel(currency);
 
   return (
     <form action={run} className="stack">
@@ -44,7 +45,7 @@ export function LoanForm({ t, lang, members, fund, action, opId, today }: {
       </div>
       <div className="grid2">
         <div className="field">
-          <label htmlFor="principal">{L.principal}</label>
+          <label htmlFor="principal">{fill(L.principal, { cur })}</label>
           <input id="principal" name="principal" className="input num" inputMode="numeric" required value={principal} onChange={(e) => setPrincipal(e.target.value)} />
         </div>
         <div className="field">

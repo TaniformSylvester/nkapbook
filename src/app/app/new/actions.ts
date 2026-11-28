@@ -21,6 +21,7 @@ export async function createGroup(_prev: ActionResult, form: FormData): Promise<
     p_contribution_per_hand: g.contribution_per_hand,
     p_start_date: g.start_date,
     p_president_name: yourName,
+    p_currency: g.currency ?? "XAF",
   });
   if (error || !data) return { error: errorKey(error) };
   const gid = data as string;

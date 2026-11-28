@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fill, type Dict, type Lang } from "@/i18n";
 import { parseAmount } from "@/lib/forms";
-import { formatFcfa } from "@/lib/money";
+import { currencyLabel, formatMoney } from "@/lib/money";
 import { applyOps, remainingToday, type ViewMember } from "@/lib/offline/apply";
 import { dropSynced, enqueue, listOps, loadSnapshot, markOps, removeOp, saveSnapshot } from "@/lib/offline/store";
 import { ATTENDANCE, METHODS, type Attendance, type Method, type Op, type QueuedOp, type Snapshot } from "@/lib/offline/types";
@@ -12,7 +12,7 @@ import { uuid } from "@/lib/uuid";
 export type MeetingText = Pick<Dict, "live" | "methods" | "attendance" | "meetings" | "common" | "fines" | "loans">;
 type SyncState = "idle" | "saving" | "offline";
 
-export function MeetingMode({ initial, t, lang }: { initial: Snapshot; t: MeetingText; lang: Lang }) {
+export function MeetingMode({ initial, t, lang, currency = "XAF" }: { initial: Snapshot; t: MeetingText; lang: Lang; currency?: string }) {
   const mid = initial.meeting.id;
   const [snap, setSnap] = useState<Snapshot>(initial);
   const [ops, setOps] = useState<QueuedOp[]>([]);
@@ -21,7 +21,8 @@ export function MeetingMode({ initial, t, lang }: { initial: Snapshot; t: Meetin
   const [q, setQ] = useState("");
   const syncing = useRef(false);
   const again = useRef(false);
-  const fcfa = (n: number) => formatFcfa(n, lang);
+  const fcfa = (n: number) => formatMoney(n, lang, currency);
+  const cur = currencyLabel(currency);
 
   const view = useMemo(() => applyOps(snap, ops), [snap, ops]);
   const pending = ops.filter((o) => !o.error && !o.synced).length;
@@ -196,7 +197,7 @@ export function MeetingMode({ initial, t, lang }: { initial: Snapshot; t: Meetin
                   m.due_today > 0 && left === 0 && <span className="mm-paid">✓ {t.live.paid}</span>
                 )}
               </div>
-              {isOpen && <MemberPanel m={m} t={t} fcfa={fcfa} closed={closed} pay={pay} mark={mark} record={record} mid={mid} gid={snap.meeting.group_id} lang={lang} />}
+              {isOpen && <MemberPanel m={m} t={t} fcfa={fcfa} cur={cur} closed={closed} pay={pay} mark={mark} record={record} mid={mid} gid={snap.meeting.group_id} lang={lang} />}
             </li>
           );
         })}
@@ -208,8 +209,8 @@ export function MeetingMode({ initial, t, lang }: { initial: Snapshot; t: Meetin
   );
 }
 
-function MemberPanel({ m, t, fcfa, closed, pay, mark, record, mid, gid, lang }: {
-  m: ViewMember; t: MeetingText; fcfa: (n: number) => string; closed: boolean; mid: string; gid: string; lang: Lang;
+function MemberPanel({ m, t, fcfa, cur, closed, pay, mark, record, mid, gid, lang }: {
+  m: ViewMember; t: MeetingText; fcfa: (n: number) => string; cur: string; closed: boolean; mid: string; gid: string; lang: Lang;
   pay: (m: ViewMember, a: number, method?: Method, ref?: string) => unknown;
   mark: (m: ViewMember, s: Attendance) => unknown;
   record: (op: Op) => Promise<void>;
@@ -238,7 +239,7 @@ function MemberPanel({ m, t, fcfa, closed, pay, mark, record, mid, gid, lang }: 
           </div>
           <div className="grid2">
             <div className="field">
-              <label htmlFor={`amt-${m.id}`}>{t.live.amount}</label>
+              <label htmlFor={`amt-${m.id}`}>{fill(t.live.amount, { cur })}</label>
               <input id={`amt-${m.id}`} className="input num" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
             </div>
             <div className="field">
@@ -266,7 +267,7 @@ function MemberPanel({ m, t, fcfa, closed, pay, mark, record, mid, gid, lang }: 
           </button>
         </>
       )}
-      <FinesAndLoans m={m} t={t} fcfa={fcfa} closed={closed} record={record} mid={mid} gid={gid} lang={lang} />
+      <FinesAndLoans m={m} t={t} fcfa={fcfa} cur={cur} closed={closed} record={record} mid={mid} gid={gid} lang={lang} />
       {m.payments.length > 0 && (
         <ul className="mm-payments">
           {m.payments.map((p) => (
@@ -391,8 +392,8 @@ function CloseMeeting({ view, t, closed, record, mid }: {
 const FINE_TYPES = ["late_payment", "absence", "lateness", "misconduct", "custom"] as const;
 
 /** Unpaid fines and active loans, collected at the meeting even with no network. */
-function FinesAndLoans({ m, t, fcfa, closed, record, mid, gid, lang }: {
-  m: ViewMember; t: MeetingText; fcfa: (n: number) => string; closed: boolean; mid: string; gid: string; lang: Lang;
+function FinesAndLoans({ m, t, fcfa, cur, closed, record, mid, gid, lang }: {
+  m: ViewMember; t: MeetingText; fcfa: (n: number) => string; cur: string; closed: boolean; mid: string; gid: string; lang: Lang;
   record: (op: Op) => Promise<void>;
 }) {
   const [fineType, setFineType] = useState<(typeof FINE_TYPES)[number]>("misconduct");
@@ -429,7 +430,7 @@ function FinesAndLoans({ m, t, fcfa, closed, record, mid, gid, lang }: {
             <>
               <div className="grid2">
                 <div className="field">
-                  <label htmlFor={`lr-${l.id}`}>{t.live.amount}</label>
+                  <label htmlFor={`lr-${l.id}`}>{fill(t.live.amount, { cur })}</label>
                   <input id={`lr-${l.id}`} className="input num" inputMode="numeric" value={repay[l.id] ?? ""} onChange={(e) => setRepay({ ...repay, [l.id]: e.target.value })} />
                 </div>
                 <div className="field">
@@ -461,7 +462,7 @@ function FinesAndLoans({ m, t, fcfa, closed, record, mid, gid, lang }: {
               </select>
             </div>
             <div className="field">
-              <label htmlFor={`fa-${m.id}`}>{t.live.amount}</label>
+              <label htmlFor={`fa-${m.id}`}>{fill(t.live.amount, { cur })}</label>
               <input id={`fa-${m.id}`} className="input num" inputMode="numeric" value={fineAmount} onChange={(e) => setFineAmount(e.target.value)} />
             </div>
           </div>

@@ -5,7 +5,7 @@ import { AmountField, MemberSelect, OpId } from "@/components/Fields";
 import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { currencyLabel, formatMoney } from "@/lib/money";
 import { addFine, addRule, applyRules, payFine, reverseEntry, toggleRule } from "../actions";
 import { ApplyRules } from "../ApplyRules";
 
@@ -22,7 +22,7 @@ export default async function FinesPage({ params }: { params: Promise<{ gid: str
     sb.from("members").select("id, name").eq("group_id", gid).eq("status", "active").order("name"),
     sb.from("meetings").select("id, date").eq("group_id", gid).order("date", { ascending: false }).limit(5),
   ]);
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, group.currency);
   const unpaid = (fines ?? []).filter((x) => x.balance > 0);
   const settled = (fines ?? []).filter((x) => x.balance <= 0);
   const ft = t.fines;
@@ -88,7 +88,7 @@ export default async function FinesPage({ params }: { params: Promise<{ gid: str
                 {TYPES.map((k) => <option key={k} value={k}>{ft.types[k]}</option>)}
               </select>
             </div>
-            <AmountField label={t.money.amount} />
+            <AmountField label={fill(t.money.amount, { cur: currencyLabel(group.currency) })} />
             <div className="field">
               <label htmlFor="note">{t.money.note}</label>
               <input id="note" name="note" className="input" maxLength={500} />
@@ -122,7 +122,7 @@ export default async function FinesPage({ params }: { params: Promise<{ gid: str
                   {(["late_payment", "absence", "lateness"] as const).map((k) => <option key={k} value={k}>{ft.types[k]}</option>)}
                 </select>
               </div>
-              <AmountField label={t.money.amount} id="rule_amount" />
+              <AmountField label={fill(t.money.amount, { cur: currencyLabel(group.currency) })} id="rule_amount" />
             </div>
           </ActionForm>
         </section>
