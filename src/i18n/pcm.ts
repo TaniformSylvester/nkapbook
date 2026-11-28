@@ -470,6 +470,20 @@ const pcm: Dict = {
     online: "Network don come back",
     tryAgain: "Try again",
   },
+  footer: {
+    contact: "Contact",
+    privacy: "Privacy",
+    englishOnly: "This page dey only for English and French.",
+  },
+  contact: {
+    title: "Contact NkapBook",
+    lead: "Question, wahala, idea, or help to pay the subscription: write we.",
+    email: "Email",
+    whatsapp: "Message we for WhatsApp",
+    waText: "Hello NkapBook, ",
+    reply: "We dey normally answer inside one working day.",
+    members: "Members: if you get question about your contribution, your turn or your balance, ask your group secretary or treasurer first. NkapBook only dey keep the records, e no fit see or move your group money.",
+  },
   home: {
     headline: "Your njangi record, clear for everybody.",
     lead: "Write contribution, turn, fine and loan for meeting, even when network weak. Every member go see ein own record for ein private link.",

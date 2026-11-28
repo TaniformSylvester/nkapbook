@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Footer } from "@/components/Footer";
 import { LangSwitch } from "@/components/LangSwitch";
 import { Logo } from "@/components/Logo";
 import { fill, type Lang } from "@/i18n";
@@ -166,6 +167,7 @@ export default async function MemberPage({ params }: { params: Promise<{ token: 
         </section>
         <p className="small muted">🔒 {me.privateNote}</p>
       </main>
+      <Footer t={t} />
     </>
   );
 }
