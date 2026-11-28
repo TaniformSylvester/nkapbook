@@ -3,7 +3,7 @@ import { ActionForm } from "@/components/ActionForm";
 import { AppHeader } from "@/components/AppHeader";
 import { fill } from "@/i18n";
 import { getGroupContext } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { formatMoney } from "@/lib/money";
 import { canOpenMeetings, subscriptionState } from "@/lib/subscription";
 import { todayDouala } from "../Subscription";
 import { openMeeting } from "./actions";
@@ -73,7 +73,7 @@ export default async function MeetingsPage({ params }: { params: Promise<{ gid: 
                   <Link className="row" href={`/app/g/${gid}/meetings/${m.id}`}>
                     <div className="row-main">
                       <div className="row-title">{fmt(m.date)}</div>
-                      <div className="row-sub">{fill(t.meetings.collected, { paid: formatFcfa(x.paid, lang), expected: formatFcfa(x.due, lang) })}</div>
+                      <div className="row-sub">{fill(t.meetings.collected, { paid: formatMoney(x.paid, lang, group.currency), expected: formatMoney(x.due, lang, group.currency) })}</div>
                     </div>
                     <span className={`chip${m.status === "closed" ? " chip-muted" : ""}`}>{status[m.status]}</span>
                   </Link>

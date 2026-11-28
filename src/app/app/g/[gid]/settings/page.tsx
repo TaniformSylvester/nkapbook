@@ -12,7 +12,7 @@ import { SubscriptionSection } from "../Subscription";
 export default async function SettingsPage({ params }: { params: Promise<{ gid: string }> }) {
   const { gid } = await params;
   const { sb, group, isPresident, lang, t } = await getGroupContext(gid);
-  const [{ data: officials }, { data: invites }, { data: members }, { data: subPayments }] = await Promise.all([
+  const [{ data: officials }, { data: invites }, { data: members }, { count: entries }, { data: subPayments }] = await Promise.all([
     sb.from("members").select("*").eq("group_id", gid).neq("role", "member").eq("status", "active").order("role").returns<Member[]>(),
     sb
       .from("official_invites")
@@ -22,6 +22,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ gid: 
       .is("cancelled_at", null)
       .returns<Invite[]>(),
     sb.from("members").select("id, name").eq("group_id", gid),
+    sb.from("ledger_entries").select("id", { count: "exact", head: true }).eq("group_id", gid),
     sb.from("subscription_payments").select("id, months, amount, paid_until_after, recorded_at").eq("group_id", gid).order("recorded_at", { ascending: false }),
   ]);
   const nameOf = new Map((members ?? []).map((m) => [m.id as string, { name: m.name as string }]));
@@ -31,7 +32,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ gid: 
       <AppHeader lang={lang} t={t} back={`/app/g/${gid}`} title={t.nav.settings} sub={group.name} />
       <main className="wrap stack">
         <ActionForm action={updateGroup.bind(null, gid)} errors={t.errors} submit={t.groupForm.save} okText={t.groupForm.saved} className="card stack">
-          <GroupFields t={t} initial={group} />
+          <GroupFields t={t} initial={group} currencyLocked={(entries ?? 0) > 0} />
           <div className="field">
             <label htmlFor="collectors">{t.cycle.perMeeting}</label>
             <select id="collectors" name="collectors" className="input" defaultValue={group.collectors_per_meeting}>

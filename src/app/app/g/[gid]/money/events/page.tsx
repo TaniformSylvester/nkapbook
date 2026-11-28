@@ -4,7 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { currencyLabel, formatMoney } from "@/lib/money";
 import { createEvent } from "../actions";
 import { EventForm } from "./EventForm";
 
@@ -23,7 +23,7 @@ export default async function EventsPage({ params }: { params: Promise<{ gid: st
     x.paid += Number(b.paid);
     sums.set(b.event_id as string, x);
   }
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, group.currency);
   const E = t.events;
   return (
     <>
@@ -49,7 +49,7 @@ export default async function EventsPage({ params }: { params: Promise<{ gid: st
         )}
         <section className="card stack">
           <h2 style={{ margin: 0 }}>{E.new}</h2>
-          <EventForm t={{ events: t.events, errors: t.errors, money: t.money }} members={members ?? []} action={createEvent.bind(null, gid, randomUUID())} />
+          <EventForm t={{ events: t.events, errors: t.errors, money: t.money }} cur={currencyLabel(group.currency)} members={members ?? []} action={createEvent.bind(null, gid, randomUUID())} />
         </section>
       </main>
     </>

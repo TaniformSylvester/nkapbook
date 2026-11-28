@@ -4,7 +4,7 @@ import { PrintButton } from "@/components/PrintButton";
 import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { formatMoney } from "@/lib/money";
 import type { Snapshot } from "@/lib/offline/types";
 
 export default async function PrintMeeting({ params }: { params: Promise<{ gid: string; mid: string }> }) {
@@ -18,7 +18,7 @@ export default async function PrintMeeting({ params }: { params: Promise<{ gid: 
     sb.from("fine_balances").select("member_name, type, charged").eq("meeting_id", mid),
     sb.from("members").select("name, role").eq("group_id", gid).neq("role", "member").eq("status", "active"),
   ]);
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, group.currency);
   const X = t.exports;
   const due = s.members.reduce((a, m) => a + m.due_today, 0);
   const paid = s.members.reduce((a, m) => a + m.paid_today, 0);

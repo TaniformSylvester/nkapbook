@@ -6,7 +6,7 @@ import { fill, type Lang } from "@/i18n";
 import { getT } from "@/i18n/server";
 import { clientIp } from "@/lib/client-ip";
 import { fmtDate } from "@/lib/dates";
-import { formatFcfa } from "@/lib/money";
+import { formatMoney } from "@/lib/money";
 import type { Method } from "@/lib/offline/types";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { confirmPayout } from "./actions";
@@ -22,7 +22,7 @@ type View =
   | {
       status: "ok";
       member: { name: string; hands: number; status: string };
-      group: { name: string; town: string | null; language: Lang };
+      group: { name: string; town: string | null; language: Lang; currency?: string };
       totals: { paid: number; contribution_owing: number; credit: number; fines_owing: number; loans_owing: number; events_owing: number; received: number };
       next: { date: string; collector: string } | null;
       turns: { position: number; hand_no: number; planned_date: string; meeting_date: string | null }[];
@@ -48,7 +48,7 @@ export default async function MemberPage({ params }: { params: Promise<{ token: 
   }
   const { lang, t } = await getT(v.status === "ok" ? v.group.language : undefined);
   const me = t.me;
-  const fcfa = (n: number) => formatFcfa(n, lang);
+  const fcfa = (n: number) => formatMoney(n, lang, v.status === "ok" ? v.group.currency : undefined);
   const day = (d: string) => fmtDate(lang, d);
 
   const header = (

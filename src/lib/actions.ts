@@ -1,11 +1,12 @@
 // Shared shape for server action results used with useActionState.
-export type ErrorKey = "generic" | "notAllowed" | "needsPresident" | "invalid" | "phone" | "alreadyInvited" | "subscriptionEnded";
+export type ErrorKey = "generic" | "notAllowed" | "needsPresident" | "invalid" | "phone" | "alreadyInvited" | "subscriptionEnded" | "currencyLocked";
 export type ActionResult = { ok?: boolean; error?: ErrorKey; message?: string; field?: string } | null;
 
 /** Map a Postgres / PostgREST error to a friendly key. */
 export function errorKey(e: { message?: string; code?: string } | null | undefined): ErrorKey {
   const m = e?.message ?? "";
   if (/subscription_ended/.test(m)) return "subscriptionEnded";
+  if (/currency_locked/.test(m)) return "currencyLocked";
   if (/needs a president/.test(m)) return "needsPresident";
   if (e?.code === "42501" || /row-level security|not allowed|permission denied|only the president/.test(m)) return "notAllowed";
   if (/official_invites_open/.test(m)) return "alreadyInvited";

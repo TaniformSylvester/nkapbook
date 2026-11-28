@@ -1,10 +1,10 @@
 "use client";
 import { useActionState, useState } from "react";
-import type { Dict } from "@/i18n";
+import { fill, type Dict } from "@/i18n";
 import type { ActionResult } from "@/lib/actions";
 
-export function EventForm({ t, members, action }: {
-  t: Pick<Dict, "events" | "errors" | "money">; members: { id: string; name: string }[];
+export function EventForm({ t, cur, members, action }: {
+  t: Pick<Dict, "events" | "errors" | "money">; cur: string; members: { id: string; name: string }[];
   action: (p: ActionResult, f: FormData) => Promise<ActionResult>;
 }) {
   const [state, run, pending] = useActionState<ActionResult, FormData>(action, null);
@@ -38,7 +38,7 @@ export function EventForm({ t, members, action }: {
         </select>
       </div>
       <div className="field">
-        <label htmlFor="amount">{E.perMember}</label>
+        <label htmlFor="amount">{fill(E.perMember, { cur })}</label>
         <input id="amount" name="amount" className="input num" inputMode="numeric" required value={amount} onChange={(e) => setAmount(e.target.value)} />
       </div>
       <details>

@@ -5,7 +5,7 @@ import { AmountField, MemberSelect, MethodSelect, OpId } from "@/components/Fiel
 import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { currencyLabel, formatMoney } from "@/lib/money";
 import { recordFund } from "./actions";
 
 export default async function MoneyPage({ params }: { params: Promise<{ gid: string }> }) {
@@ -20,7 +20,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ gid: str
     sb.from("ledger_net").select("id, kind, net, recorded_at, note, member_id").eq("group_id", gid).eq("account", "fund")
       .in("kind", ["fund_deposit", "fund_withdrawal", "loan_disbursed", "loan_repaid", "fine_paid"]).order("recorded_at", { ascending: false }).limit(15),
   ]);
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, group.currency);
   const fineTotal = (fines ?? []).reduce((s, x) => s + Number(x.balance), 0);
   const loanTotal = (loans ?? []).reduce((s, x) => s + Number(x.balance), 0);
   const overdue = (loans ?? []).filter((x) => x.overdue).length;
@@ -66,7 +66,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ gid: str
             </div>
             <MemberSelect members={members ?? []} label={t.money.who} optional={t.money.nobody} />
             <div className="grid2">
-              <AmountField label={t.money.amount} />
+              <AmountField label={fill(t.money.amount, { cur: currencyLabel(group.currency) })} />
               <MethodSelect t={t} />
             </div>
             <div className="field">

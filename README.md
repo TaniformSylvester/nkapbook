@@ -157,6 +157,14 @@ To set up a **new** project from scratch:
 - Sign-in codes are rate-limited per phone number and per connection, on top of Supabase's own limits.
 - Supabase's default `TRUNCATE` grant is revoked (it would bypass row security).
 
+### Currencies
+
+Each group keeps its records in one currency, chosen when the group is created: FCFA (XAF or XOF), naira, cedi,
+Kenyan shilling, rand, baht, euro, pound, US or Canadian dollar. Amounts are whole numbers. Officials can change
+the currency in Settings **only until the first money is recorded**; after that the database refuses, so old
+records never change meaning. Reminders, member links, statements and exports all use the group's currency
+(the ledger CSV has a `currency` column). NkapBook's own subscription is always priced in FCFA.
+
 ### Subscriptions (groups paying for NkapBook)
 
 This is the group paying **you** for the service; NkapBook still never holds group money.

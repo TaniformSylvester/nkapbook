@@ -4,7 +4,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { formatMoney } from "@/lib/money";
 import { giveLoan } from "../actions";
 import { LoanForm } from "./LoanForm";
 
@@ -22,7 +22,7 @@ export default async function LoansPage({ params }: { params: Promise<{ gid: str
     sb.from("members").select("id, name").eq("group_id", gid).eq("status", "active").order("name"),
     sb.from("group_accounts").select("fund_balance").eq("group_id", gid).maybeSingle(),
   ]);
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, group.currency);
   const L = t.loans;
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Douala" });
 
@@ -55,6 +55,7 @@ export default async function LoansPage({ params }: { params: Promise<{ gid: str
           <LoanForm
             t={{ loans: t.loans, money: t.money, methods: t.methods, errors: t.errors }}
             lang={lang}
+            currency={group.currency}
             members={members ?? []}
             fund={Number(acc?.fund_balance ?? 0)}
             action={giveLoan.bind(null, gid)}

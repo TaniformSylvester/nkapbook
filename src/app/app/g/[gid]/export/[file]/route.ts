@@ -30,10 +30,12 @@ async function build(sb: SupabaseClient, gid: string, file: File): Promise<strin
     case "ledger": {
       type E = { id: string; recorded_at: string; client_recorded_at: string | null; meeting_id: string | null; member_id: string | null; account: string; kind: string; amount: number; method: string | null; momo_ref: string | null; note: string | null; reverses_entry_id: string | null; reason: string | null; recorded_by: string | null; fine_id: string | null; loan_id: string | null; event_id: string | null };
       const rows = await all<E>((a, b) => sb.from("ledger_entries").select("*").eq("group_id", gid).order("recorded_at").range(a, b));
+      const { data: g } = await sb.from("groups").select("currency").eq("id", gid).maybeSingle();
+      const cur = (g?.currency as string | undefined) ?? "XAF";
       return toCsv(
-        ["entry_id", "recorded_at", "meeting_date", "member", "account", "kind", "amount_fcfa", "signed_amount", "method", "momo_ref", "note", "corrects_entry", "correction_reason", "recorded_by", "fine_id", "loan_id", "event_id"],
+        ["entry_id", "recorded_at", "meeting_date", "member", "account", "kind", "amount", "signed_amount", "currency", "method", "momo_ref", "note", "corrects_entry", "correction_reason", "recorded_by", "fine_id", "loan_id", "event_id"],
         rows.map((e) => [e.id, e.recorded_at, e.meeting_id ? mdate.get(e.meeting_id) : "", e.member_id ? name.get(e.member_id) : "", e.account, e.kind,
-          e.amount, e.reverses_entry_id ? -e.amount : e.amount, e.method, e.momo_ref, e.note, e.reverses_entry_id, e.reason,
+          e.amount, e.reverses_entry_id ? -e.amount : e.amount, cur, e.method, e.momo_ref, e.note, e.reverses_entry_id, e.reason,
           e.recorded_by ? byUser.get(e.recorded_by) ?? e.recorded_by : "", e.fine_id, e.loan_id, e.event_id]),
       );
     }

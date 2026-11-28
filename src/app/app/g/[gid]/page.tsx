@@ -3,7 +3,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { fill } from "@/i18n";
 import { fmtDate } from "@/lib/dates";
 import { getGroupContext, scheduleText } from "@/lib/group";
-import { formatFcfa } from "@/lib/money";
+import { formatMoney } from "@/lib/money";
 import { SubscriptionNotice } from "./Subscription";
 
 type Bal = { member_id: string; name: string; contribution_owing: number; fines_owing: number; loans_owing: number; events_owing: number };
@@ -21,7 +21,7 @@ export default async function GroupOverview({ params }: { params: Promise<{ gid:
     sb.from("group_accounts").select("fund_balance").eq("group_id", gid).maybeSingle(),
     sb.from("loan_balances").select("id").eq("group_id", gid).eq("overdue", true),
   ]);
-  const f = (n: number) => formatFcfa(n, lang);
+  const f = (n: number) => formatMoney(n, lang, group.currency);
   const count = members?.length ?? 0;
   const hands = (members ?? []).reduce((s, m) => s + (m.hands as number), 0);
   const next = (slots ?? []) as unknown as Slot[];

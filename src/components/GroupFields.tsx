@@ -1,12 +1,15 @@
 "use client";
 import { useState } from "react";
-import { LANGS, type Dict } from "@/i18n";
+import { fill, LANGS, type Dict } from "@/i18n";
+import { CURRENCIES, currencyLabel } from "@/lib/money";
 import { FREQUENCIES, type Frequency, type Group } from "@/lib/types";
 
 /** Fields shared by "create group" and "group settings". Meeting day adapts to the frequency. */
-export function GroupFields({ t, initial, withYourName }: { t: Dict; initial?: Partial<Group>; withYourName?: boolean }) {
+/** currencyLocked: money has been recorded, so the currency is shown but can't change. */
+export function GroupFields({ t, initial, withYourName, currencyLocked }: { t: Dict; initial?: Partial<Group>; withYourName?: boolean; currencyLocked?: boolean }) {
   const f = t.groupForm;
   const [freq, setFreq] = useState<Frequency>(initial?.frequency ?? "monthly");
+  const [currency, setCurrency] = useState<string>(initial?.currency ?? "XAF");
   const [day, setDay] = useState<number>(initial?.meeting_day ?? (freq === "monthly" ? 1 : 0));
   const pickFreq = (v: Frequency) => {
     setFreq(v);
@@ -31,7 +34,15 @@ export function GroupFields({ t, initial, withYourName }: { t: Dict; initial?: P
         </div>
       )}
       <div className="field">
-        <label htmlFor="contribution">{f.contribution}</label>
+        <label htmlFor="currency">{f.currency}</label>
+        <span className="hint" id="currency-hint">{currencyLocked ? f.currencyLocked : f.currencyHint}</span>
+        <select id="currency" name={currencyLocked ? undefined : "currency"} className="input" value={currency} disabled={currencyLocked}
+          onChange={(e) => setCurrency(e.target.value)} aria-describedby="currency-hint">
+          {CURRENCIES.map((c) => <option key={c} value={c}>{t.currencies[c]}</option>)}
+        </select>
+      </div>
+      <div className="field">
+        <label htmlFor="contribution">{fill(f.contribution, { cur: currencyLabel(currency) })}</label>
         <span className="hint" id="contribution-hint">{f.contributionHint}</span>
         <input
           id="contribution"
