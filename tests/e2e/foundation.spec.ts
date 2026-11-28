@@ -51,7 +51,7 @@ test("group pages are private: signed-out visitors go to sign in", async ({ page
 test("member link pages are private and never cached", async ({ request }) => {
   const res = await request.get("/m/not-a-real-token");
   expect(res.headers()["cache-control"]).toContain("no-store");
-  expect(res.headers()["referrer-policy"]).toBe("no-referrer");
+  expect(res.headers()["referrer-policy"]).toBe("same-origin");
   expect(await res.text()).toContain("noindex");
 });
 
@@ -86,4 +86,15 @@ test("sharing a private link requires sign-in", async ({ request }) => {
   const res = await request.get(`/app/g/${g}/links/send?m=${g}&l=en`, { maxRedirects: 0 });
   expect(res.status()).toBe(307);
   expect(res.headers()["location"]).toContain("/login");
+});
+
+test("sign-in works even when the phone doesn't run scripts", async ({ browser }) => {
+  const ctx = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 360, height: 740 } });
+  await ctx.addCookies([{ name: "nk_lang", value: "en", url: "http://localhost:3100" }]);
+  const page = await ctx.newPage();
+  await page.goto("/login");
+  await page.fill("#phone", "12345");
+  await Promise.all([page.waitForURL(/e=phone/), page.click("form:has(#phone) button")]);
+  await expect(page.locator(".error")).toContainText("valid phone number");
+  await ctx.close();
 });

@@ -150,7 +150,7 @@ To set up a **new** project from scratch:
 - The browser's anonymous role has **no** table access. Member links are served by the server through
   `member_view()` / `confirm_payout()`, which only the server can call, are rate-limited per visitor and per link,
   and return one member's record plus group basics (name, meeting dates, who collects next by first name).
-- Member pages: `noindex`, `Cache-Control: private, no-store`, `Referrer-Policy: no-referrer`. Tokens are 43 random
+- Member pages: `noindex`, `Cache-Control: private, no-store`, `Referrer-Policy: same-origin` (the link is never sent to other sites). Tokens are 43 random
   characters; officials can reset a link and the old one stops working at once.
 - Sign-in codes are rate-limited per phone number and per connection, on top of Supabase's own limits.
 - Supabase's default `TRUNCATE` grant is revoked (it would bypass row security).

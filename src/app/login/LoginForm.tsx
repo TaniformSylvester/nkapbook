@@ -1,76 +1,46 @@
-"use client";
-import { useActionState } from "react";
-import type { Dict } from "@/i18n";
-import { fill } from "@/i18n";
+import { SubmitButton } from "@/components/SubmitButton";
+import { fill, type Dict } from "@/i18n";
 import { formatPhone } from "@/lib/phone";
-import { sendCode, verifyCode, type LoginState } from "./actions";
+import { sendCode, verifyCode, type LoginError } from "./actions";
 
 type LoginText = Dict["login"];
 
-export function LoginForm({ t }: { t: LoginText }) {
-  const [sent, sendAction, sending] = useActionState<LoginState, FormData>(sendCode, { step: "phone" });
-  const [verified, verifyAction, verifying] = useActionState<LoginState, FormData>(verifyCode, { step: "code" });
-
-  const onCodeStep = sent.step === "code" && verified.step === "code";
-  const error = onCodeStep ? verified.error : sent.error;
-
-  if (onCodeStep && sent.phone) {
+/** Plain forms posting to server actions: work with or without JavaScript. */
+export function LoginForm({ t, step, phone, error }: { t: LoginText; step: "phone" | "code"; phone: string | null; error: LoginError | null }) {
+  if (step === "code" && phone) {
     return (
       <div className="stack">
         <h1>{t.codeTitle}</h1>
-        <p>{fill(t.codeSent, { phone: formatPhone(sent.phone) })}</p>
+        <p>{fill(t.codeSent, { phone: formatPhone(phone) })}</p>
         {error && <p className="error" role="alert">{t.errors[error]}</p>}
-        <form action={verifyAction} className="stack">
-          <input type="hidden" name="phone" value={sent.phone} />
+        <form action={verifyCode} className="stack">
           <div className="field">
             <label htmlFor="code">{t.codeLabel}</label>
-            <input
-              id="code"
-              name="code"
-              className="input input-big"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              pattern="[0-9]{6}"
-              maxLength={6}
-              required
-              autoFocus
-            />
+            <input id="code" name="code" className="input input-big" inputMode="numeric" autoComplete="one-time-code"
+              pattern="[0-9]{6}" maxLength={6} required autoFocus />
           </div>
-          <button className="btn btn-block" disabled={verifying}>
-            {t.verify}
-          </button>
+          <SubmitButton>{t.verify}</SubmitButton>
         </form>
-        <form action={sendAction}>
-          <input type="hidden" name="phone" value={sent.phone} />
-          <button className="btn-link" disabled={sending}>{t.resend}</button>
+        <form action={sendCode}>
+          <input type="hidden" name="phone" value={`+${phone}`} />
+          <SubmitButton className="btn-link">{t.resend}</SubmitButton>
         </form>
-        <a href="/login" className="btn-link">{t.changeNumber}</a>
+        <a href="/login?change=1" className="btn-link">{t.changeNumber}</a>
       </div>
     );
   }
 
   return (
-    <form action={sendAction} className="stack">
+    <form action={sendCode} className="stack">
       <h1>{t.title}</h1>
       {error && <p className="error" role="alert">{t.errors[error]}</p>}
       <div className="field">
         <label htmlFor="phone">{t.phoneLabel}</label>
         <span className="hint" id="phone-hint">{t.phoneHint}</span>
-        <input
-          id="phone"
-          name="phone"
-          className="input"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          aria-describedby="phone-hint"
-          defaultValue={sent.phone ? formatPhone(sent.phone) : ""}
-          required
-        />
+        <input id="phone" name="phone" className="input" type="tel" inputMode="tel" autoComplete="tel"
+          aria-describedby="phone-hint" defaultValue={phone ? formatPhone(phone) : ""} required />
       </div>
-      <button className="btn btn-block" disabled={sending}>
-        {t.sendCode}
-      </button>
+      <SubmitButton>{t.sendCode}</SubmitButton>
     </form>
   );
 }
